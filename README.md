@@ -43,7 +43,7 @@ pip install -r requirements.txt
 ```
 The following script will run those commands as well
 ```bash
-/opt/ScoutSuite/scoutsuite.sh can be used to 
+/opt/ScoutSuite/scoutsuite.sh 
 ```
 Once done - execute the following command to deactivate the environment
 ```bash
