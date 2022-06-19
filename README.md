@@ -8,7 +8,7 @@ docker build -t audit-tools .	# Build time is longer due to Cloud CLI Install ti
 ## Run Docker Instance - without exiting - and drop into a shell
 ### Launch Container and grab Instance ID (Long)
 ```bash
-container_id=$(docker run -it --rm --detach audit-tools --name audit-tools)
+container_id=$(docker run -it --rm --detach audit-tools --name audit-tools -v ~/Documents:/output)
 ```
 ### Drop into Bash shell
 ```bash
@@ -54,7 +54,8 @@ Steampipe is installed into /usr/local/bin/steampipe
 
 Mods for AWS, GCP, and Azure are deployed into the following path - to use, run steampipe from the specific location - dashboard will not run.
 - /opt/steampipe-mod-*
-
+### Output Location
+Copy/Paste will mount ~/Documents to /output to move report files outside of the container
 ### Update Tool
 Execute the following command to update the tools in the container, however, at container launch this will execute - and stay running (sleep) to stop the container just closing.
 ```bash

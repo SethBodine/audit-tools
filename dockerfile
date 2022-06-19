@@ -16,11 +16,11 @@ RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/s
 RUN AZ_REPO=$(lsb_release -cs); echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" > /etc/apt/sources.list.d/azure-cli.list
 
 RUN apt-get update
-RUN apt-get install -y python3 python3-dev python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo dnsutils
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3 python3-dev python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo
 # longer install times - not neede for testing
-RUN apt-get install -y awscli google-cloud-cli azure-cli
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends awscli google-cloud-cli azure-cli
 # Install additional tools
-RUN apt-get install -y nmap vim perl 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends nmap vim perl openssl libssl-dev dnsutils curl wget 
 
 # create docker user
 RUN adduser --disabled-password --gecos '' docker
