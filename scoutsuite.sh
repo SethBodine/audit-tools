@@ -1,5 +1,5 @@
 #!/bin/sh
-# Prep ScoutSuite Environmenta
+# Prep ScoutSuite Environment
 deactivate
 cd /opt/ScoutSuite/
 source venv/bin/activate

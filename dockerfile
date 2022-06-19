@@ -33,7 +33,6 @@ USER docker
 # Deploy tools from Github
 WORKDIR /opt/
 RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git
-RUN sudo git clone https://github.com/anaynayak/aws-security-viz.git
 RUN sudo git clone https://github.com/turbot/steampipe-mod-aws-insights
 RUN sudo git clone https://github.com/turbot/steampipe-mod-aws-thrifty
 RUN sudo git clone https://github.com/turbot/steampipe-mod-azure-compliance
@@ -63,7 +62,7 @@ RUN steampipe plugin install googleworkspace
 RUN steampipe plugin install net
 RUN steampipe plugin install kubernetes
 
-# Drop loader for ScoutSuite and updater
+# Drop loader for ScoutSuite and updater script
 WORKDIR /opt/ScoutSuite/
 COPY ./scoutsuite.sh .
 WORKDIR /sbin/
