@@ -5,10 +5,10 @@ This docker file contains a current list of reliable, usable tools to aid in Clo
 docker system prune -a -f	# Note: Runing this command will PURGE ALL Images, not just this image
 docker build -t audit-tools .	# Build time is longer due to Cloud CLI Install times. Est about 10-15mins to build
 ```
-## Run Docker Instance - without exiting - and drop into a shell
-### Launch Container and grab Instance ID (Long)
+## Run Docker Instance - without exiting - and drop into a shell - /output/ within the container is set-up to be mapped as needed
+### Launch Container and grab Instance ID (Long) 
 ```bash
-container_id=$(docker run -it --rm --detach audit-tools --name audit-tools -v ~/Documents:/output)
+container_id=$(docker run -it -v ~/Documents:/output --rm --detach audit-tools --name audit-tools)
 ```
 ### Drop into Bash shell
 ```bash

@@ -68,6 +68,9 @@ COPY ./scoutsuite.sh .
 WORKDIR /sbin/
 COPY ./updatetools .
 
+# Create Mapped path
+WORKDIR /output/
+
 # updatetools will run every start - will update all installed tools
 WORKDIR /opt/
 ENTRYPOINT ["/sbin/updatetools"]
