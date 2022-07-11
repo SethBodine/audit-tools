@@ -89,15 +89,14 @@ RUN sudo virtualenv -p python3 venv
 RUN sudo venv/bin/pip install --upgrade pip
 RUN sudo venv/bin/pip install -r requirements.txt
 
-# Build claim
+# Build cliam
 WORKDIR /opt/update-golang
 
 #RUN if [[ $(wget -qO- https://raw.githubusercontent.com/udhos/update-golang/master/update-golang.sh.sha256 | sha256sum -c) ]]; then sudo ./update-golang.sh; fi
 RUN sudo ./update-golang.sh
-WORKDIR /opt/claim/cli
+WORKDIR /opt/cliam/cli
 # RUN sudo source  /etc/profile.d/golang_path.sh && make dev
-#RUN sudo . /etc/profile.d/golang_path.sh && make dev
-# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && make dev"
+RUN sudo bash -c ". /etc/profile.d/golang_path.sh && make dev"
 
 # Drop loader for ScoutSuite and updater script
 WORKDIR /opt/ScoutSuite/
