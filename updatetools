@@ -16,5 +16,12 @@ sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe
 sudo steampipe plugin update --all >>/tmp/updatetools.log
 echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>/tmp/updatetools.log
 
+# Update Go
+cd /opt/update-golang
+sudo ./update-golang.sh
+
+# fix perms
+sudo chown docker:docker -R /opt/*
+
 # stop container exiting
 sleep infinity
