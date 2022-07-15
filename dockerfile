@@ -21,7 +21,7 @@ ENV TZ="Pacific/Auckland"
 RUN curl -sL https://packages.cloud.google.com/apt/doc/apt-key.gpg | tee /etc/apt/trusted.gpg.d/google.gpg > /dev/null
 RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
 RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
-RUN AZ_REPO=$(lsb_release -cs); echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" > /etc/apt/sources.list.d/azure-cli.list
+#RUN AZ_REPO=$(lsb_release -cs); echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" > /etc/apt/sources.list.d/azure-cli.list
 
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3 python3-dev python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make
@@ -29,11 +29,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends py
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends awscli google-cloud-cli # azure-cli
 
 # alt approach to azure-cli
-RUN apt-get install -y libsodium-dev
-RUN SODIUM_INSTALL=system pip install pynacl; pip install azure-cli
+RUN apt-get install -y libsodium-dev gcc
+RUN SODIUM_INSTALL=system pip install pynacl; sudo pip install azure-cli
 
 # Install additional tools
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends nmap vim perl openssl libssl-dev dnsutils curl wget 
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping
 
 # create docker user
 RUN adduser --disabled-password --gecos '' docker
@@ -58,6 +58,7 @@ RUN sudo git clone https://github.com/turbot/steampipe-mod-gcp-thrifty
 RUN sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-compliance
 RUN sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights
 RUN sudo git clone https://github.com/turbot/steampipe-mod-net-insights
+RUN sudo git clone https://github.com/prowler-cloud/prowler
 
 # New Tools added
 RUN sudo git clone https://github.com/bassammaged/awsEnum
@@ -65,11 +66,15 @@ RUN sudo git clone https://github.com/JohannesEbke/aws_list_all
 RUN sudo git clone https://github.com/securisec/cliam
 RUN sudo git clone https://github.com/udhos/update-golang
 
+# Fix Permissions
+WORKDIR /opt/
+RUN sudo chown docker:docker -R /opt/*
+
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
-RUN sudo virtualenv -p python3 venv 
-RUN sudo venv/bin/pip install --upgrade pip
-RUN sudo venv/bin/pip install -r requirements.txt
+RUN virtualenv -p python3 venv 
+RUN venv/bin/pip install --upgrade pip
+RUN venv/bin/pip install -r requirements.txt
 
 # Build Steampipe
 RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)"
@@ -85,24 +90,30 @@ RUN steampipe plugin install kubernetes
 
 # Build awsEnum
 WORKDIR /opt/awsEnum
-RUN sudo virtualenv -p python3 venv
-RUN sudo venv/bin/pip install --upgrade pip
-RUN sudo venv/bin/pip install -r requirements.txt
+RUN virtualenv -p python3 venv
+RUN venv/bin/pip install --upgrade pip
+RUN venv/bin/pip install -r requirements.txt
+
+# Build Prowler Environment
+WORKDIR /opt/prowler
+RUN virtualenv -p python3 venv
+RUN venv/bin/pip install --upgrade pip
+RUN venv/bin/pip install detect-secrets==1.0.3
 
 # Build cliam
 WORKDIR /opt/update-golang
-
-#RUN if [[ $(wget -qO- https://raw.githubusercontent.com/udhos/update-golang/master/update-golang.sh.sha256 | sha256sum -c) ]]; then sudo ./update-golang.sh; fi
 RUN sudo ./update-golang.sh
 WORKDIR /opt/cliam/cli
 # RUN sudo source  /etc/profile.d/golang_path.sh && make dev
-RUN sudo bash -c ". /etc/profile.d/golang_path.sh && make dev"
+RUN bash -c ". /etc/profile.d/golang_path.sh && make dev"
 
 # Drop loader for ScoutSuite and updater script
 WORKDIR /opt/ScoutSuite/
 COPY ./scoutsuite.sh .
 WORKDIR /opt/awsEnum
 COPY ./awsEnum.sh .
+WORKDIR /opt/prowler
+COPY ./prowler.sh .
 WORKDIR /sbin/
 COPY ./updatetools .
 
