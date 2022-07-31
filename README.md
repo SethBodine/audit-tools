@@ -1,14 +1,32 @@
 # Docker Audit Tools
 This docker file contains a current list of reliable, usable tools to aid in Cloud Audits.
+## Docker Install Engine
+Ensure you review the docker installation - [Docker Desktop](https://docs.docker.com/desktop/install/windows-install/) Licensing has changed recently.
+- [Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+- [Debian](https://docs.docker.com/engine/install/debian/#install-using-the-repository)
+- [RHEL](https://docs.docker.com/engine/install/rhel/#install-using-the-repository)
+- [Fedora](https://docs.docker.com/engine/install/fedora/#install-using-the-repository)
+
 ## Docker Image Build 
-```bash
-docker system prune -a -f	# Note: Runing this command will PURGE ALL Images, not just this image
-docker build -t audit-tools .	# Build time is longer due to Cloud CLI Install times. Est about 10-15mins to build
+The following commands will clean-up and build this repo from github. Please note that this has changed, so before updating things, execute the following clean-up command.
 ```
-## Run Docker Instance - without exiting - and drop into a shell - /output/ within the container is set-up to be mapped as needed
+docker system prune -a -f	    # Note: Running this command will PURGE ALL Images, not just this image
+```
+```bash
+docker system prune -a -f --filter "label=audit-tools"
+docker build github.com/SethBodine/docker#main -t audit-tools --label audit-tools
+```
+## Run Docker Instance
+* -t       : Allocate a pseudo-tty
+* -i       : Keep STDIN open even if not attached
+* -v       : Bind mount a volume /output in the container to ~/Documents
+* -p       : Publish a container's port 9194 to the host
+* --rm     : Automatically remove the container when it exits
+* --name   : Assign a name to the container
+* --detach : Run container in background and print container ID
 ### Launch Container and grab Instance ID (Long) 
 ```bash
-container_id=$(docker run -it -v ~/Documents:/output --rm --detach audit-tools --name audit-tools)
+container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach --name audit-tools audit-tools)
 ```
 ### Drop into Bash shell
 ```bash
@@ -37,51 +55,6 @@ Everything is deployed under /opt, further reading can be found for tools at the
 * [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/) - Azure command-line interface (Azure CLI) is a set of commands used to create and manage Azure resources
 * [AWS CLI](https://aws.amazon.com/cli/) - The AWS Command Line Interface (AWS CLI) is a unified tool to manage your AWS services
 * [GCP CLI](https://cloud.google.com/sdk/gcloud/) - The Google Cloud CLI is a set of tools to create and manage Google Cloud resources
-### Scout Suite
-Scout should be ready to use, run the following commands to prep the venv
-```bash
-cd /opt/ScoutSuite/
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt 
-```
-The following script will run those commands as well
-```bash
-/opt/ScoutSuite/scoutsuite.sh 
-```
-Once done - execute the following command to deactivate the environment
-```bash
-deactivate
-```
-### Steampipe
-Steampipe is installed into /usr/local/bin/steampipe
-
-Mods for AWS, GCP, and Azure are deployed into the following path - to use, run steampipe from the specific location - dashboard will not run.
-- /opt/steampipe-mod-\*
-### Prowler
-```bash
-cd /opt/prowler
-source venv/bin/activate
-```
-Once done - execute the following command to deactivate the environment
-```bash
-deactivate
-```
-### cliam
-```bash
-cd /opt/cliam/cli
-```
-### awsEnum
-```bash
-cd /opt/awsEnum
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-Once done - execute the following command to deactivate the environment
-```bash
-deactivate
-```
 ### Output Location
 Copy/Paste will mount ~/Documents to /output to move report files outside of the container
 ### Update Tool

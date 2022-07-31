@@ -19,7 +19,7 @@ ENV TZ="Pacific/Auckland"
 
 # Add Google and Microsoft Ubuntu Repos
 RUN curl -sL https://packages.cloud.google.com/apt/doc/apt-key.gpg | tee /etc/apt/trusted.gpg.d/google.gpg > /dev/null
-RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+#RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
 RUN echo "deb https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
 #RUN AZ_REPO=$(lsb_release -cs); echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" > /etc/apt/sources.list.d/azure-cli.list
 
@@ -59,6 +59,9 @@ RUN sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-compliance
 RUN sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights
 RUN sudo git clone https://github.com/turbot/steampipe-mod-net-insights
 RUN sudo git clone https://github.com/prowler-cloud/prowler
+
+# Possible new Tools
+RUN sudo git clone https://github.com/Shopify/kubeaudit
 
 # New Tools added
 RUN sudo git clone https://github.com/bassammaged/awsEnum
@@ -107,7 +110,7 @@ WORKDIR /opt/cliam/cli
 # RUN sudo source  /etc/profile.d/golang_path.sh && make dev
 RUN bash -c ". /etc/profile.d/golang_path.sh && make dev"
 
-# Drop loader for ScoutSuite and updater script
+# Drop scripts
 WORKDIR /opt/ScoutSuite/
 COPY ./scoutsuite.sh .
 WORKDIR /opt/awsEnum
@@ -116,6 +119,8 @@ WORKDIR /opt/prowler
 COPY ./prowler.sh .
 WORKDIR /sbin/
 COPY ./updatetools .
+WORKDIR /bin/
+COPY ./source-this-script.sh .
 
 # Create Mapped path
 WORKDIR /output/

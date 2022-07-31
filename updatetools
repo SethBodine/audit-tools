@@ -1,27 +1,31 @@
 #!/bin/sh
-echo "Update Script Started: $(date +'%Y-%m-%d %H:%m:%s')" >/tmp/updatetools.log
+
+LOGFILE="/tmp/updatetools.$(date +'%Y%m%d.%H.%m.%s').log"
+
+echo "Update Script Started: $(date +'%Y-%m-%d %H:%m:%s')" >${LOGFILE}
 
 # Update Repos
-sudo apt update >>/tmp/updatetools.log
-sudo apt -y upgrade >>/tmp/updatetools.log
-sudo apt -y dist-upgrade >>/tmp/updatetools.log
-sudo apt -y autoremove >>/tmp/updatetools.log
+sudo apt update >>${LOGFILE}
+sudo apt -y upgrade >>${LOGFILE}
+sudo apt -y dist-upgrade >>${LOGFILE}
+sudo apt -y autoremove >>${LOGFILE}
 
 # Update Github Repos
 cd /opt
-find . -type d -depth 1 -exec git --git-dir={}/.git --work-tree=$PWD/{} pull origin master \; >>/tmp/updatetools.log
+find . -type d -depth 1 -exec git --git-dir={}/.git --work-tree=$PWD/{} pull origin master \; >>${LOGFILE}
 
 # Update Steampipe
-sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>/tmp/updatetools.log
-sudo steampipe plugin update --all >>/tmp/updatetools.log
-echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>/tmp/updatetools.log
+sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
+sudo steampipe plugin update --all >>${LOGFILE}
 
 # Update Go
 cd /opt/update-golang
-sudo ./update-golang.sh
+sudo ./update-golang.sh >>${LOGFILE}
 
 # fix perms
-sudo chown docker:docker -R /opt/*
+sudo chown docker:docker -R /opt/* >>${LOGFILE}
+
+echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
 
 # stop container exiting
 sleep infinity
