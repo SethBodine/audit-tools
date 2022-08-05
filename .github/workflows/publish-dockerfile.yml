@@ -7,7 +7,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-${{ github.sha }}_${{ github.run_id }}
+  # IMAGE_NAME: ${{ github.repository }}-${{ github.sha }}_${{ github.run_id }}
+  IMAGE_NAME: SethBodine/audit-tools
   
 jobs:
   build-and-push-image:
