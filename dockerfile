@@ -1,6 +1,8 @@
 # Ubuntu Latest
 FROM ubuntu 
 
+LABEL "audit-tools"=""
+
 # Fix for ScoutSuit
 RUN ulimit -Sn 1000
 
