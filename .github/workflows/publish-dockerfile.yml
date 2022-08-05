@@ -8,7 +8,8 @@ on:
 env:
   REGISTRY: ghcr.io
   # IMAGE_NAME: ${{ github.repository }}-${{ github.sha }}_${{ github.run_id }}
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: SethBodine/audit-tools
+  #IMAGE_NAME: ${{ github.repository }}
   
 jobs:
   build-and-push-image:
@@ -47,8 +48,8 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          #tags: ${{ steps.meta.outputs.tags }}
-          #labels: ${{ steps.meta.outputs.labels }}
-          tags: user/app:latest,name:audit-tools
-          labels: audit-tools
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          #tags: user/app:latest,name:audit-tools
+          #labels: audit-tools
 
