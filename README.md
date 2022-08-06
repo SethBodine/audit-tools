@@ -7,7 +7,7 @@ Ensure you review the docker installation - [Docker Desktop](https://docs.docker
 - [RHEL](https://docs.docker.com/engine/install/rhel/#install-using-the-repository)
 - [Fedora](https://docs.docker.com/engine/install/fedora/#install-using-the-repository)
 
-## Docker Image Build 
+## Option 1. Local Docker Image Build 
 The following commands will clean-up and build this repo from github. Please note that this has changed, so before updating things, execute the following clean-up command.
 ```
 docker system prune -a -f	    # Note: Running this command will PURGE ALL Images, not just this image
@@ -16,7 +16,7 @@ docker system prune -a -f	    # Note: Running this command will PURGE ALL Images
 docker system prune -a -f --filter "label=audit-tools"
 docker build github.com/SethBodine/docker#main -t audit-tools --label audit-tools
 ```
-## Run Docker Instance
+### Run Docker Instance from Local Build and Launch Container and grab Instance ID (Long)
 * -t       : Allocate a pseudo-tty
 * -i       : Keep STDIN open even if not attached
 * -v       : Bind mount a volume /output in the container to ~/Documents
@@ -24,9 +24,13 @@ docker build github.com/SethBodine/docker#main -t audit-tools --label audit-tool
 * --rm     : Automatically remove the container when it exits
 * --name   : Assign a name to the container
 * --detach : Run container in background and print container ID
-### Launch Container and grab Instance ID (Long) 
 ```bash
 container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach --name audit-tools audit-tools)
+```
+## Option 2. Run Docker Instance directly from Github [Package](https://github.com/SethBodine/docker/pkgs/container/audit-tools) and Launch Container and grab Instance ID (Long)
+You can also just download the latest image via the [Packages section](https://github.com/SethBodine/docker/pkgs/container/audit-tools)
+```
+container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach --name audit-tools ghcr.io/sethbodine/audit-tools:main)
 ```
 ### Drop into Bash shell
 ```bash
@@ -62,3 +66,4 @@ Execute the following command to update the tools in the container, however, at 
 ```bash
 /sbin/updatetools
 ```
+
