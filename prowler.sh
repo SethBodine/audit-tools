@@ -1,4 +1,4 @@
-#!/bin/sh source-this-script.sh
+#!/bin/sh /usr/bin/source-this-script.sh
 # Prep Environment
 
 SCRIPT_PATH="/opt/prowler/"
