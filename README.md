@@ -37,6 +37,7 @@ container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach 
 ```bash
 docker exec -it --user docker  ${container_id} /bin/bash
 ```
+> Note: By default the container will exit after 48 hours (See updatetools script)
 ### Stop and Clean-up
 ```bash
 docker stop ${container_id}

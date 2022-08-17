@@ -28,4 +28,4 @@ sudo chown docker:docker -R /opt/* >>${LOGFILE}
 echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
 
 # stop container exiting
-sleep infinity
+sleep 48h
