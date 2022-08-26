@@ -14,13 +14,18 @@ sudo apt -y autoremove >>${LOGFILE}
 cd /opt
 find . -type d -depth 1 -exec git --git-dir={}/.git --work-tree=$PWD/{} pull origin master \; >>${LOGFILE}
 
+# Update aws-list-all
+sudo pip install awd-list-all --upgrade 
+
 # Update Steampipe
 sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
 sudo steampipe plugin update --all >>${LOGFILE}
 
-# Update Go
+# Update Go and CLIAM
 cd /opt/update-golang
 sudo ./update-golang.sh >>${LOGFILE}
+cd /opt/cliam/cli
+. /etc/profile.d/golang_path.sh && make dev
 
 # fix perms
 sudo chown docker:docker -R /opt/* >>${LOGFILE}
