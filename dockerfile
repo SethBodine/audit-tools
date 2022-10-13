@@ -101,4 +101,5 @@ WORKDIR /opt/
 
 # updatetools will run every start - will update all installed tools
 RUN sudo chown docker:docker -R /opt/*
-ENTRYPOINT ["/sbin/updatetools"]
+# Replaced ENTRYPOINT with CMD (will run and start-up can be replaced)
+CMD /usr/bin/sleep infinity
