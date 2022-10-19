@@ -30,7 +30,7 @@ container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach 
 ## Option 2. Run Docker Instance directly from Github [Package](https://github.com/SethBodine/docker/pkgs/container/audit-tools) and Launch Container and grab Instance ID (Long)
 You can also just download the latest image via the [Packages section](https://github.com/SethBodine/docker/pkgs/container/audit-tools)
 ```
-system prune -a -f --filter "label=audit-tools"
+docker system prune -a -f --filter "label=audit-tools"
 container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach --name audit-tools ghcr.io/sethbodine/audit-tools:main /sbin/updatetools)
 ```
 ### Drop into Bash shell
