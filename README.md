@@ -6,12 +6,13 @@ Ensure you review the docker installation - [Docker Desktop](https://docs.docker
 - [Debian](https://docs.docker.com/engine/install/debian/#install-using-the-repository)
 - [RHEL](https://docs.docker.com/engine/install/rhel/#install-using-the-repository)
 - [Fedora](https://docs.docker.com/engine/install/fedora/#install-using-the-repository)
-
-## Option 1. Local Docker Image Build 
-The following commands will clean-up and build this repo from github. Please note that this has changed, so before updating things, execute the following clean-up command.
+# Environment Prep
+The following commands will clean-up and build this repo from github. Please note some documentation has changed, so before updating things, execute the following clean-up command.
 ```
 docker system prune -a -f	    # Note: Running this command will PURGE ALL Images, not just this image
 ```
+# Prepare and run the Container
+## Option 1. Local Docker Image Build (Note: Runtime is 10-20mins)
 ```bash
 docker system prune -a -f --filter "label=audit-tools"
 docker build github.com/SethBodine/docker#main -t audit-tools --label audit-tools
@@ -27,10 +28,10 @@ docker build github.com/SethBodine/docker#main -t audit-tools --label audit-tool
 ```bash
 container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach --name audit-tools audit-tools /sbin/updatetools)
 ```
-## Option 2. Run Docker Instance directly from Github [Package](https://github.com/SethBodine/docker/pkgs/container/audit-tools) and Launch Container and grab Instance ID (Long)
+## Option 2. Run Docker Instance directly from Github [Package](https://github.com/SethBodine/docker/pkgs/container/audit-tools) and Launch Container and grab Instance ID (Long) (Note: Runetime: about 5mins - recommended)
 You can also just download the latest image via the [Packages section](https://github.com/SethBodine/docker/pkgs/container/audit-tools)
 ```
-docker system prune -a -f --filter "label=audit-tools"
+docker pull ghcr.io/sethbodine/audit-tools:main
 container_id=$(docker run -it -p 9194:9194 -v ~/Documents:/output --rm --detach --name audit-tools ghcr.io/sethbodine/audit-tools:main /sbin/updatetools)
 ```
 ### Drop into Bash shell
@@ -41,6 +42,11 @@ docker exec -it --user docker  ${container_id} /bin/bash
 ### Stop and Clean-up
 ```bash
 docker stop ${container_id}
+```
+## Update Docker Container
+Once stopped re-executing the following command will pull any changes introduced - will reduce the time to refresh the container, however, it may cause increased disk usage.
+```
+docker pull ghcr.io/sethbodine/audit-tools:main
 ```
 ## Tools and How to use
 Everything is deployed under /opt, further reading can be found for tools at these lcoations
