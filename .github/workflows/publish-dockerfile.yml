@@ -47,9 +47,9 @@ jobs:
           #  org.opencontainers.image.revision=${{ github.sha }}
           #  org.opencontainers.image.source=https://github.com/${{ github.repository }}
           #  org.opencontainers.image.version=${{ env.BUILD_VER }}
-	  # tags: |
-          #   type=sha
-          #   type=raw,value=main
+	  #tags: |
+          #  type=sha
+          #  type=raw,value=main
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -59,7 +59,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta.outputs.tags }}
-#            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          #  ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           labels: ${{ steps.meta.outputs.labels }}
           # tags: ghcr.io/audit-tools
           build-args: |
