@@ -14,7 +14,7 @@ RUN ulimit -Sn 1000 && \
     curl -sL -o /etc/apt/trusted.gpg.d/google.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg && \
     echo "deb https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
 # Install Python, AWS CLI, GCP, Git, and other tools, Fixing Time and Date NZDT
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make awscli google-cloud-cli libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make awscli google-cloud-cli libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog
 
 # alt approach to azure-cli and deploy other system tools via pip
 RUN SODIUM_INSTALL=system pip install pynacl; sudo pip install azure-cli aws-list-all
@@ -40,12 +40,11 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-compliance && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights && \
     sudo git clone https://github.com/turbot/steampipe-mod-net-insights && \
-    sudo git clone https://github.com/prowler-cloud/prowler && \
     sudo git clone https://github.com/Shopify/kubeaudit && \
     sudo git clone https://github.com/bassammaged/awsEnum && \
     sudo git clone https://github.com/securisec/cliam && \
     sudo git clone https://github.com/udhos/update-golang && \
-    sudo chown docker:docker -R /opt/*
+    sudo mkdir /opt/prowler && sudo chown docker:docker -R /opt/*
 
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
@@ -73,7 +72,7 @@ COPY ./awsEnum.sh .
 
 # Build Prowler Environment
 WORKDIR /opt/prowler
-RUN virtualenv -p python3 venv && venv/bin/pip install --upgrade pip && venv/bin/pip install detect-secrets==1.0.3
+RUN virtualenv -p python3 venv && venv/bin/pip install --upgrade pip && venv/bin/pip install prowler-cloud 
 # Drop scripts
 COPY ./prowler.sh .
 
@@ -92,6 +91,7 @@ WORKDIR /sbin/
 COPY ./updatetools .
 WORKDIR /bin/
 COPY ./source-this-script.sh .
+COPY ./help .
 WORKDIR /home/docker
 COPY ./.screenrc .
 

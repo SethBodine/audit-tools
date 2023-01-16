@@ -9,6 +9,6 @@ APP_NAME="Prowler"
 cd ${SCRIPT_PATH}
 source venv/bin/activate
 pip install --upgrade pip
-pip install detect-secrets==1.0.3
+pip install --upgrade prowler-cloud
 
 echo -e "\n\n${APP_NAME} Environment Ready... execute \"deactivate\" to exit the environment"
