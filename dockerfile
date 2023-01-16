@@ -91,7 +91,7 @@ WORKDIR /sbin/
 COPY ./updatetools .
 WORKDIR /bin/
 COPY ./source-this-script.sh .
-COPY ./help .
+# COPY ./help .
 WORKDIR /home/docker
 COPY ./.screenrc .
 
