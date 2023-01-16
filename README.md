@@ -9,7 +9,7 @@ Currently serveral packages are configured (small list below), check out the [wi
 * Azure CLI `az`
 * GCP Cli `gcloud`
 * AWS CLI `aws`
-* Prowler `. /opt/Prowler/prowler.sh && /opt/Prowler/prowler`
+* Prowler `prowler`
 * SteamPipe `steampipe`
 * ScoutSuite `. /opt/ScoutSuite/scoutsuite.sh && /opt/ScoutSuite/scout.py`
 
