@@ -2,13 +2,15 @@
 # Prep Environment
 
 SCRIPT_PATH="/opt/prowler/"
-APP_NAME="Prowler"
+APP_NAME="Prowler v2"
 
-[[ ${VIRTUAL_ENV} ]] && deactivate
+#[[ ${VIRTUAL_ENV} ]] && deactivate
+if [ ! -z "${VIRTUAL_ENV+x}" ]; then deactivate; fi
 
-cd ${SCRIPT_PATH}
-source venv/bin/activate
+
+cd ${SCRIPT_PATH} || exit #handle for cd failure
+. venv/bin/activate
 pip install --upgrade pip
-pip install --upgrade prowler-cloud
+pip install detect-secrets==1.0.3
 
-echo -e "\n\n${APP_NAME} Environment Ready... execute \"deactivate\" to exit the environment"
+printf "\n\n${APP_NAME} Environment Ready... execute \"deactivate\" to exit the environment\n\n"

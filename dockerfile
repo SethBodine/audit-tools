@@ -40,11 +40,12 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-compliance && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights && \
     sudo git clone https://github.com/turbot/steampipe-mod-net-insights && \
+    sudo git clone --branch prowler-2 --single-branch https://github.com/prowler-cloud/prowler && \
     sudo git clone https://github.com/Shopify/kubeaudit && \
     sudo git clone https://github.com/bassammaged/awsEnum && \
     sudo git clone https://github.com/securisec/cliam && \
     sudo git clone https://github.com/udhos/update-golang && \
-    sudo mkdir /opt/prowler && sudo chown docker:docker -R /opt/*
+    sudo mkdir /opt/prowler3 && sudo chown docker:docker -R /opt/*
 
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
@@ -70,11 +71,18 @@ RUN virtualenv -p python3 venv && venv/bin/pip install --upgrade pip && venv/bin
 # Drop scripts
 COPY ./awsEnum.sh .
 
-# Build Prowler Environment
+# Build Prowler Environments
+# prowler v2
 WORKDIR /opt/prowler
-RUN virtualenv -p python3 venv && venv/bin/pip install --upgrade pip && venv/bin/pip install prowler-cloud 
+RUN virtualenv -p python3 venv && venv/bin/pip install --upgrade pip && venv/bin/pip install detect-secrets==1.0.3
 # Drop scripts
 COPY ./prowler.sh .
+
+# prowler v3
+WORKDIR /opt/prowler3
+RUN virtualenv -p python3 venv && venv/bin/pip install --upgrade pip && venv/bin/pip install prowler-cloud 
+# Drop scripts
+COPY ./prowler3.sh .
 
 # Build cliam
 WORKDIR /opt/update-golang 

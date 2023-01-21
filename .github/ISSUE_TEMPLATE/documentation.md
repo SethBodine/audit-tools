@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Which Document is missing information?.**
-A clear and concise description of what documentation is required. Ex. missing wiki details [...]
+A clear and concise description of what documentation is required. Ex. missing wiki details \[...\]
 
 **Describe the documentation updates you'd like**
 A clear and concise list of what documentation is missing.
