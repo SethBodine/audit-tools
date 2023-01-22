@@ -5,7 +5,7 @@ SCRIPT_PATH="/opt/prowler3/"
 APP_NAME="Prowler v3"
 
 #[[ ${VIRTUAL_ENV} ]] && deactivate
-if [ ! -z "${VIRTUAL_ENV+x}" ]; then deactivate; fi
+if [ -n "${VIRTUAL_ENV+x}" ]; then deactivate; fi
 
 
 cd ${SCRIPT_PATH}  || exit #handle for cd failure
@@ -13,4 +13,4 @@ cd ${SCRIPT_PATH}  || exit #handle for cd failure
 pip install --upgrade pip
 pip install --upgrade prowler-cloud
 
-printf "\n\n${APP_NAME} Environment Ready... execute \"deactivate\" to exit the environment\n\n"
+printf "\n\n%s Environment Ready... execute \"deactivate\" to exit the environment\n\n" ${APP_NAME}
