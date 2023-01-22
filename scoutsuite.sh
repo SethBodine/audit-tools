@@ -12,4 +12,4 @@ cd ${SCRIPT_PATH}  || exit #handle for cd failure
 pip install --upgrade pip
 pip install -r requirements.txt 
 
-printf "\n\n%s Environment Ready... execute \"deactivate\" to exit the environment\n\n" ${APP_NAME}
+printf "\n\n%s Environment Ready... execute \"deactivate\" to exit the environment\n\n" "${APP_NAME}"
