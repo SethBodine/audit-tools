@@ -1,5 +1,6 @@
 # Ubuntu Latest
-FROM ubuntu 
+#FROM ubuntu 
+FROM ubuntu:rolling
 
 LABEL "audit-tools"="" "org.opencontainers.image.documentation"="https://github.com/SethBodine/docker/wiki" "org.opencontainers.image.title"="audit-tools" "org.opencontainers.image.description"="Docker Container for Cloud Security Audit Tools" "org.opencontainers.image.version"="latest"
 
