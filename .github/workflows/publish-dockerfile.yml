@@ -5,7 +5,7 @@ on:
     branches:
      - 'main'
   schedule:
-    - cron:  '0 0 1 * *'    # Force Build Monthly
+    - cron:  '0 0 * * 1'    # Force Build Weekly
 
 env:
   REGISTRY: ghcr.io
