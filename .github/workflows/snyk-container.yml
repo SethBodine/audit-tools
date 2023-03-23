@@ -34,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Install jq
+      run: sudo apt-get --purge -y install jq # Possible fix
     - name: Build a Docker image
       run: docker build -t your/image-to-test .
     - name: Run Snyk to check Docker image for vulnerabilities
@@ -49,7 +51,9 @@ jobs:
       with:
         image: your/image-to-test
         args: --file=dockerfile
+    - name: Fix SARIF file # added section
+      run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
     - name: Upload result to GitHub Code Scanning
       uses: github/codeql-action/upload-sarif@v2
       with:
-        sarif_file: snyk.sarif
+        sarif_file: onlysnyk.sarif # tweaked for possible fix
