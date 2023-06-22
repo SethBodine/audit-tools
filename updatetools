@@ -14,8 +14,12 @@ sudo apt -y autoremove >>${LOGFILE}
 cd /opt
 find . -name .git -type d | xargs -n1 -P4 -I% git --git-dir=% --work-tree=%/.. pull -p >>${LOGFILE} 
 
+# Update pip
+sudo pip install pip --upgrade
+
 # Update aws-list-all
-sudo pip install aws-list-all --upgrade
+# disabled for the time being
+#sudo pip install aws-list-all --upgrade
 
 # Update Steampipe
 sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
