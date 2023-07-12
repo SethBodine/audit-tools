@@ -17,10 +17,6 @@ find . -name .git -type d | xargs -n1 -P4 -I% git --git-dir=% --work-tree=%/.. p
 # Update pip
 sudo pip install pip --upgrade
 
-# Update aws-list-all
-# disabled for the time being
-#sudo pip install aws-list-all --upgrade
-
 # Update Steampipe
 sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
 steampipe plugin update --all >>${LOGFILE} 
@@ -28,11 +24,17 @@ steampipe plugin update --all >>${LOGFILE}
 # Update Go and CLIAM
 cd /opt/update-golang
 [[ "$(/usr/local/go/bin/go version | awk '{ print $3 }')" != "$(curl https://go.dev/VERSION?m=text)" ]] && sudo /opt/update-golang/update-golang.sh >>${LOGFILE}
-cd /opt/cliam/cli
-. /etc/profile.d/golang_path.sh && make dev
+
+# updating trufflehog
+cd /opt/trufflehog
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+
+# updating kubeaudit
+cd /opt/kubeaudit
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
 
 # fix perms
-sudo chown docker:docker -R /opt/* >>${LOGFILE}
+sudo chown container:container -Rv /opt/* >>${LOGFILE}
 
 echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
 

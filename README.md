@@ -13,6 +13,9 @@ Currently serveral packages are configured (small list below), check out the [wi
 * Prowler v3 `. /opt/prowler3/prowler.sh && prowler`
 * SteamPipe `steampipe`
 * ScoutSuite `. /opt/ScoutSuite/scoutsuite.sh && /opt/ScoutSuite/scout.py`
+* testssl `/opt/testssl.sh/testssl.sh`
+* trufflehog `trufflehog`
+* kubeaudit  `kubeaudit`
 
 ## Recent Changes
 - Prowler now supports Azure and AWS - new in [v3](https://github.com/prowler-cloud/prowler/tree/3.0.0)
@@ -22,4 +25,3 @@ Historically docker was the go to, however, due to the licensing changes, podman
 
 ## Why?
 New Job, new wants and needs, simple.
-

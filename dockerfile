@@ -16,21 +16,19 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl gpg lsb-release apt-utils ca-certificates && \
     echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
-    #curl -sL -o /etc/apt/trusted.gpg.d/google.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg && \
-    #echo "deb https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make awscli google-cloud-cli \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
+    
 # alt approach to azure-cli and deploy other system tools via pip
-RUN SODIUM_INSTALL=system pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli aws-list-all
+RUN SODIUM_INSTALL=system pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli # aws-list-all
 
 # create docker user
-RUN adduser --disabled-password --gecos '' docker && adduser docker sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN adduser --disabled-password --gecos '' container && adduser container sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Change to non-root privilege
-USER docker
+USER container
 
 # Deploy tools from Github 
 WORKDIR /opt/
@@ -48,11 +46,13 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights && \
     sudo git clone https://github.com/turbot/steampipe-mod-net-insights && \
     sudo git clone --branch prowler-2 --single-branch https://github.com/prowler-cloud/prowler && \
-    sudo git clone https://github.com/Shopify/kubeaudit && \
-    sudo git clone https://github.com/bassammaged/awsEnum && \
-    sudo git clone https://github.com/securisec/cliam && \
+    sudo git clone https://github.com/trufflesecurity/trufflehog.git && \
+    sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
     sudo git clone https://github.com/udhos/update-golang && \
-    sudo mkdir /opt/prowler3 && sudo chown docker:docker -R /opt/*
+    sudo git clone https://github.com/Shopify/kubeaudit && \
+    sudo mkdir /opt/prowler3 && sudo chown container:container -R /opt/*
+    # sudo git clone https://github.com/bassammaged/awsEnum && \
+    # sudo git clone https://github.com/securisec/cliam && \
 
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
@@ -72,12 +72,6 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steam
     steampipe plugin install net && \
     steampipe plugin install kubernetes
 
-# Build awsEnum
-WORKDIR /opt/awsEnum
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir -r requirements.txt
-# Drop scripts
-COPY ./awsEnum.sh .
-
 # Build Prowler Environments
 # prowler v2
 WORKDIR /opt/prowler
@@ -87,21 +81,20 @@ COPY ./prowler.sh .
 
 # prowler v3
 WORKDIR /opt/prowler3
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler #&& \
-#    venv/bin/pip install -r https://raw.githubusercontent.com/prowler-cloud/prowler/master/requirements.txt
-# Drop scripts
 COPY ./prowler3.sh .
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler 
 
-# Build cliam
+# Update Go-lang
 WORKDIR /opt/update-golang 
 RUN sudo ./update-golang.sh
-WORKDIR /opt/cliam/cli
-# RUN sudo source  /etc/profile.d/golang_path.sh && make dev
-RUN bash -c ". /etc/profile.d/golang_path.sh && make dev"
 
-# Build AWS List All
-# pulled this package for the moment
-#RUN pip install pip --upgrade && pip install --no-cache-dir --break-system-packages aws-list-all 
+# Build Kubeaudit
+WORKDIR /opt/kubeaudit
+RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
+
+# Build Trufflehog
+WORKDIR /opt/trufflehog
+RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -o /usr/bin/trufflehog"
 
 # Drop scripts
 WORKDIR /sbin/
@@ -109,7 +102,7 @@ COPY ./updatetools .
 WORKDIR /bin/
 COPY ./source-this-script.sh .
 # COPY ./help .
-WORKDIR /home/docker
+WORKDIR /home/container
 COPY ./.screenrc .
 
 # Create Mapped path
