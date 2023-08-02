@@ -33,6 +33,10 @@ sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s 
 cd /opt/kubeaudit
 sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
 
+# updating AzureHound
+cd /opt/AzureHound
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+
 # fix perms
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 

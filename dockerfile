@@ -50,6 +50,7 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
     sudo git clone https://github.com/udhos/update-golang && \
     sudo git clone https://github.com/Shopify/kubeaudit && \
+    sudo git clone https://github.com/BloodHoundAD/AzureHound && \
     sudo mkdir /opt/prowler3 && sudo chown container:container -R /opt/*
     # sudo git clone https://github.com/bassammaged/awsEnum && \
     # sudo git clone https://github.com/securisec/cliam && \
@@ -94,7 +95,11 @@ RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w
 
 # Build Trufflehog
 WORKDIR /opt/trufflehog
-RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -o /usr/bin/trufflehog"
+RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+
+# Build AzureHound
+WORKDIR /opt/AzureHound
+RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
 
 # Drop scripts
 WORKDIR /sbin/
