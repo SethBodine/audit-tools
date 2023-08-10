@@ -45,6 +45,16 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-compliance && \
     sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights && \
     sudo git clone https://github.com/turbot/steampipe-mod-net-insights && \
+    sudo git clone https://github.com/turbot/steampipe-mod-microsoft365-compliance && \
+    sudo git clone https://github.com/turbot/steampipe-mod-github-compliance && \
+    sudo git clone https://github.com/turbot/steampipe-mod-terraform-aws-compliance && \
+    sudo git clone https://github.com/turbot/steampipe-mod-terraform-azure-compliance && \
+    sudo git clone https://github.com/turbot/steampipe-mod-terraform-gcp-compliance && \
+    sudo git clone https://github.com/turbot/steampipe-mod-aws-perimeter && \
+    sudo git clone https://github.com/turbot/steampipe-mod-aws-top-10 && \
+    sudo git clone https://github.com/turbot/steampipe-mod-aws-well-architected && \
+    sudo git clone https://github.com/turbot/steampipe-mod-github-sherlock && \
+    sudo git clone https://github.com/turbot/steampipe-mod-digitalocean-insights.git && \
     sudo git clone --branch prowler-2 --single-branch https://github.com/prowler-cloud/prowler && \
     sudo git clone https://github.com/trufflesecurity/trufflehog.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
@@ -71,7 +81,11 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steam
     steampipe plugin install googledirectory && \
     steampipe plugin install googleworkspace && \
     steampipe plugin install net && \
-    steampipe plugin install kubernetes
+    steampipe plugin install kubernetesa && \
+    steampipe plugin install github && \
+    steampipe plugin install terraform && \
+    steampipe plugin install digitalocean && \
+    steampipe plugin install microsoft365 
 
 # Build Prowler Environments
 # prowler v2
