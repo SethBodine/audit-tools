@@ -16,6 +16,7 @@ Currently serveral packages are configured (small list below), check out the [wi
 * testssl `/opt/testssl.sh/testssl.sh`
 * trufflehog `trufflehog`
 * kubeaudit  `kubeaudit`
+* AzureHound `azurehound`
 
 ## Recent Changes
 - Added kubeaudit, testssl, trufflehog, and AzureHound
