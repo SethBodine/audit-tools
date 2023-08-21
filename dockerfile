@@ -81,7 +81,7 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steam
     steampipe plugin install googledirectory && \
     steampipe plugin install googleworkspace && \
     steampipe plugin install net && \
-    steampipe plugin install kubernetesa && \
+    steampipe plugin install kubernetes && \
     steampipe plugin install github && \
     steampipe plugin install terraform && \
     steampipe plugin install digitalocean && \
