@@ -1,11 +1,36 @@
+# golang is a beast - so we build it then bin it for the container build
+FROM golang:latest as GoBuilder
+
+# Fixing Time and Date NZDT, 
+ENV TZ="Pacific/Auckland"
+
+WORKDIR /opt/
+RUN git clone https://github.com/Shopify/kubeaudit && \
+    git clone https://github.com/BloodHoundAD/AzureHound && \
+    git clone https://github.com/trufflesecurity/trufflehog.git 
+
+# Build Kubeaudit
+WORKDIR /opt/kubeaudit
+#RUN bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
+RUN bash -c "go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
+
+# Build Trufflehog
+WORKDIR /opt/trufflehog
+#RUN bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+RUN bash -c "go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+
+# Build AzureHound
+WORKDIR /opt/AzureHound
+#RUN bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+RUN bash -c "go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+
+
+# Final (hopefully smaller image at build time - golang WILL be built at the container runtime.
+
 # Ubuntu Latest
-#FROM ubuntu 
-FROM ubuntu:rolling
-#FROM debian:testing-slim
+FROM ubuntu:rolling as Builded
 
 LABEL "audit-tools"="" "org.opencontainers.image.documentation"="https://github.com/SethBodine/docker/wiki" "org.opencontainers.image.title"="audit-tools" "org.opencontainers.image.description"="Docker Container for Cloud Security Audit Tools" "org.opencontainers.image.version"="latest"
-
-# Refactor for less layers
 
 # Fixing Time and Date NZDT, 
 ENV TZ="Pacific/Auckland"
@@ -99,21 +124,26 @@ WORKDIR /opt/prowler3
 COPY ./prowler3.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler 
 
+# Grab compiled bins from golang build
+COPY --from=GoBuilder /usr/bin/kubeaudit /usr/bin/kubeaudit
+COPY --from=GoBuilder /usr/bin/trufflehog /usr/bin/trufflehog
+COPY --from=GoBuilder /usr/bin/AzureHound /usr/bin/AzureHound
+
 # Update Go-lang
-WORKDIR /opt/update-golang 
-RUN sudo ./update-golang.sh
+#WORKDIR /opt/update-golang 
+#RUN sudo ./update-golang.sh
 
-# Build Kubeaudit
-WORKDIR /opt/kubeaudit
-RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
+# # Build Kubeaudit
+# WORKDIR /opt/kubeaudit
+# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
 
-# Build Trufflehog
-WORKDIR /opt/trufflehog
-RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+# # Build Trufflehog
+# WORKDIR /opt/trufflehog
+# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
 
-# Build AzureHound
-WORKDIR /opt/AzureHound
-RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+# # Build AzureHound
+# WORKDIR /opt/AzureHound
+# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
 
 # Drop scripts
 WORKDIR /sbin/
