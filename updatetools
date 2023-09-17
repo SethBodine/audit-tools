@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 LOGFILE="/tmp/updatetools.$(date +'%Y%m%d.%H.%m.%s').log"
 
@@ -21,9 +21,14 @@ sudo pip install pip --upgrade
 sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
 steampipe plugin update --all >>${LOGFILE} 
 
-# Update Go and CLIAM
+# Temporary Fix for scoutsuit blowout at build
+cd /opt/ScoutSuite
+virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# Update Go 
 cd /opt/update-golang
-[[ "$(/usr/local/go/bin/go version | awk '{ print $3 }')" != "$(curl https://go.dev/VERSION?m=text)" ]] && sudo /opt/update-golang/update-golang.sh >>${LOGFILE}
+# [[ "$(/usr/local/go/bin/go version | awk '{ print $3 }')" != "$(curl https://go.dev/VERSION?m=text)" ]] && sudo /opt/update-golang/update-golang.sh >>${LOGFILE}
+sudo ./update-golang.sh >>${LOGFILE}
 
 # updating trufflehog
 cd /opt/trufflehog

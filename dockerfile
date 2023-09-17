@@ -1,36 +1,9 @@
-# golang is a beast - so we build it then bin it for the container build
-FROM golang:latest as GoBuilder
-
-# Fixing Time and Date NZDT, 
-ENV TZ="Pacific/Auckland"
-
-WORKDIR /opt/
-RUN git clone https://github.com/Shopify/kubeaudit && \
-    git clone https://github.com/BloodHoundAD/AzureHound && \
-    git clone https://github.com/trufflesecurity/trufflehog.git 
-
-# Build Kubeaudit
-WORKDIR /opt/kubeaudit
-#RUN bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
-RUN bash -c "go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
-
-# Build Trufflehog
-WORKDIR /opt/trufflehog
-#RUN bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
-RUN bash -c "go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
-
-# Build AzureHound
-WORKDIR /opt/AzureHound
-#RUN bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
-RUN bash -c "go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
-
-
-# Final (hopefully smaller image at build time - golang WILL be built at the container runtime.
-
 # Ubuntu Latest
-FROM ubuntu:rolling as Builded
+FROM ubuntu:rolling
 
 LABEL "audit-tools"="" "org.opencontainers.image.documentation"="https://github.com/SethBodine/docker/wiki" "org.opencontainers.image.title"="audit-tools" "org.opencontainers.image.description"="Docker Container for Cloud Security Audit Tools" "org.opencontainers.image.version"="latest"
+
+# Refactor for less layers
 
 # Fixing Time and Date NZDT, 
 ENV TZ="Pacific/Auckland"
@@ -43,7 +16,7 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make awscli google-cloud-cli \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
     
 # alt approach to azure-cli and deploy other system tools via pip
@@ -92,7 +65,8 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
 
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir -r requirements.txt
+# # temporary workaround - remove scoutsuite venv steps until runtime
+# # RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir -r requirements.txt
 # Drop scripts
 COPY ./scoutsuite.sh .
 
@@ -112,6 +86,12 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steam
     steampipe plugin install digitalocean && \
     steampipe plugin install microsoft365 
 
+WORKDIR /opt/steampipe-mod-aws-well-architected
+RUN steampipe mod install
+
+WORKDIR /opt/steampipe-mod-aws-top-10
+RUN steampipe mod install
+    
 # Build Prowler Environments
 # prowler v2
 WORKDIR /opt/prowler
@@ -124,14 +104,13 @@ WORKDIR /opt/prowler3
 COPY ./prowler3.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler 
 
-# Grab compiled bins from golang build
-COPY --from=GoBuilder /usr/bin/kubeaudit /usr/bin/kubeaudit
-COPY --from=GoBuilder /usr/bin/trufflehog /usr/bin/trufflehog
-COPY --from=GoBuilder /usr/bin/AzureHound /usr/bin/AzureHound
+# Install tfsec
+RUN sudo bash -c "curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash"
 
-# Update Go-lang
-#WORKDIR /opt/update-golang 
-#RUN sudo ./update-golang.sh
+# # temporary workaround - remove golang build steps until runtime
+# # Update Go-lang
+# # WORKDIR /opt/update-golang 
+# # RUN sudo ./update-golang.sh
 
 # # Build Kubeaudit
 # WORKDIR /opt/kubeaudit
