@@ -44,7 +44,6 @@ jobs:
           tags: |
             type=schedule
             type=ref,event=tag
-            #type=ref,event=branch,suffix=-{{ sha }}
             type=ref,event=branch
             type=ref,event=pr
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
