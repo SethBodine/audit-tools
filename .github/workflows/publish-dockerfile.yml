@@ -48,7 +48,7 @@ jobs:
             type=ref,event=pr
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=edge,branch=$repo.default_branch
-            type=ref,event=branch
+            type=ref,event=branch,priority=1000
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
