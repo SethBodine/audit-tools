@@ -44,12 +44,11 @@ jobs:
           tags: |
             type=schedule
             type=ref,event=tag
-            type=ref,event=branch
             type=ref,event=branch,suffix=-{{ sha }}
             type=ref,event=pr
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=sha,prefix=sha-,format=short
             type=edge,branch=$repo.default_branch
+            type=ref,event=branch
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
