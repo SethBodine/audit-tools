@@ -17,9 +17,11 @@ Currently serveral packages are configured (small list below), check out the [wi
 * trufflehog `trufflehog`
 * kubeaudit  `kubeaudit`
 * AzureHound `azurehound`
+* tfsec `tfsec`
 
 ## Recent Changes
-- Added kubeaudit, testssl, trufflehog, and AzureHound
+- Added tfsec
+- Removed golang from container build, golang packages will be built at launch (AzureHound, trufflehog, kubeaudit)
 
 ## How?
 Historically docker was the go to, however, due to the licensing changes, podman is now the recommended approach to the build. Check out the [wiki](https://github.com/SethBodine/docker/wiki/Home/) for further information
