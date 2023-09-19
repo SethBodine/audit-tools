@@ -72,3 +72,11 @@ jobs:
           package-name: 'audit-tools'
           package-type: 'container'
           min-versions-to-keep: 10
+      
+      - name: Delete legacy untagged containers
+        uses: actions/delete-package-versions@v4.1.1
+        with: 
+          package-name: 'audit-tools'
+          package-type: 'container'
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: 'true'
