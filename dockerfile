@@ -53,13 +53,13 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/turbot/steampipe-mod-aws-well-architected && \
     sudo git clone https://github.com/turbot/steampipe-mod-github-sherlock && \
     sudo git clone https://github.com/turbot/steampipe-mod-digitalocean-insights.git && \
-    sudo git clone --branch prowler-2 --single-branch https://github.com/prowler-cloud/prowler && \
     sudo git clone https://github.com/trufflesecurity/trufflehog.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
     sudo git clone https://github.com/udhos/update-golang && \
     sudo git clone https://github.com/Shopify/kubeaudit && \
     sudo git clone https://github.com/BloodHoundAD/AzureHound && \
-    sudo mkdir /opt/prowler3 && sudo chown container:container -R /opt/*
+    sudo mkdir /opt/prowler && sudo chown container:container -R /opt/*
+    #sudo git clone --branch prowler-2 --single-branch https://github.com/prowler-cloud/prowler && \
     # sudo git clone https://github.com/bassammaged/awsEnum && \
     # sudo git clone https://github.com/securisec/cliam && \
 
@@ -92,16 +92,9 @@ RUN steampipe mod install
 WORKDIR /opt/steampipe-mod-aws-top-10
 RUN steampipe mod install
     
-# Build Prowler Environments
-# prowler v2
+# Build Prowler Environment
 WORKDIR /opt/prowler
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir detect-secrets==1.0.3
-# Drop scripts
 COPY ./prowler.sh .
-
-# prowler v3
-WORKDIR /opt/prowler3
-COPY ./prowler3.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler 
 
 # Install tfsec
