@@ -1,7 +1,7 @@
 #!/bin/sh /usr/bin/source-this-script.sh
 # Prep Environment
 
-SCRIPT_PATH="/opt/prowler3/"
+SCRIPT_PATH="/opt/prowler/"
 APP_NAME="Prowler v3"
 
 #[[ ${VIRTUAL_ENV} ]] && deactivate
