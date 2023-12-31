@@ -19,4 +19,4 @@ Currently serveral packages are configured (small list below), check out the [wi
 | tfsec | `tfsec` | ![](https://img.shields.io/github/last-commit/aquasecurity/tfsec) | [Using tfsec](https://github.com/SethBodine/docker/wiki/Using-tfsec) |
 
 ## Recent Changes
-- Removed awsenum and prowler v2
+- Renamed repo
