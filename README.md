@@ -19,7 +19,7 @@ Currently serveral packages are configured (small list below), check out the [wi
 | tfsec | `tfsec` | ![](https://img.shields.io/github/last-commit/aquasecurity/tfsec) | [Using tfsec](https://github.com/SethBodine/docker/wiki/Using-tfsec) |
 | trivy | `trivy` | ![](https://img.shields.io/github/last-commit/aquasecurity/trivy) | [Using trivy](https://github.com/SethBodine/docker/wiki/Using-trivy) |
 | kubescape | `kubescape` | ![](https://img.shields.io/github/last-commit/kubescape/kubescape) | [Using kubescape](https://github.com/SethBodine/docker/wiki/Using-kubescape) |
-| bucketcloner | `bucketcloner` | ![](https://img.shields.io/github/last-commit/phillies/bucketcloner) | [Using bucketcloner](https://github.com/SethBodine/docker/wiki/Using-bucketcloner) |
+| bucketcloner | `. /opt/bucketcloner/bb-clone.sh && bucketcloner` | ![](https://img.shields.io/github/last-commit/phillies/bucketcloner) | [Using bucketcloner](https://github.com/SethBodine/docker/wiki/Using-bucketcloner) |
 
 ## Recent Changes
 - Introduced three new tools:
