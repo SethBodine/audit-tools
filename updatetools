@@ -66,8 +66,10 @@ sudo chown container:container -Rv /opt/* >>${LOGFILE}
 echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
 
 # Updated motd
-echo "" > /etc/motd_updates
-echo "Updates are now complete - container will shutdown in 48 hours" >>/etc/motd_updates
+sudo echo "-------------------------------" >/etc/motd_updates 
+sudo echo "" >>/etc/motd_updates
+sudo echo "Updates are now complete - container will shutdown in 48 hours" >>/etc/motd_updates
+sudo echo "" >>/etc/motd_updates
 
 # stop container exiting
 sleep 48h
