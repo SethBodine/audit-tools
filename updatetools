@@ -4,6 +4,9 @@ LOGFILE="/tmp/updatetools.$(date +'%Y%m%d.%H.%m.%s').log"
 
 echo "Update Script Started: $(date +'%Y-%m-%d %H:%m:%s')" >${LOGFILE}
 
+# Update .bashrc
+echo '[ ! -z "$TERM" -a -r /etc/motd ] && cat /etc/motd && cat /etc/motd_updates' >>~/.bashrc
+
 # Update Repos
 sudo apt update >>${LOGFILE}
 sudo apt -y upgrade >>${LOGFILE}
@@ -27,9 +30,18 @@ steampipe mod install
 cd /opt/steampipe-mod-aws-top-10
 steampipe mod install
 
+cd /opt/steampipe-mod-snowflake-compliance
+steampipe mod install
+
 # Temporary Fix for scoutsuit blowout at build
 cd /opt/ScoutSuite
-virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir -r requirements.txt
+virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} && venv/bin/pip install --no-cache-dir -r requirements.txt >>${LOGFILE}
+
+# update trivy
+sudo /bin/sh -c "$(curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin)" >>${LOGFILE}
+
+# update kubescape
+sudo /bin/sh -c "$(curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash)" >>${LOGFILE}
 
 # Update Go 
 cd /opt/update-golang
@@ -38,20 +50,24 @@ sudo ./update-golang.sh >>${LOGFILE}
 
 # updating trufflehog
 cd /opt/trufflehog
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog" >>${LOGFILE}
 
 # updating kubeaudit
 cd /opt/kubeaudit
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit" >>${LOGFILE}
 
 # updating AzureHound
 cd /opt/AzureHound
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound" >>${LOGFILE}
 
 # fix perms
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 
 echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
+
+# Updated motd
+echo "" > /etc/motd_updates
+echo "Updates are now complete - container will shutdown in 48 hours" >>/etc/motd_updates
 
 # stop container exiting
 sleep 48h

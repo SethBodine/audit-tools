@@ -16,8 +16,13 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make awscli google-cloud-cli \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# push motd
+WORKDIR /etc/
+COPY ./motd .
+COPY ./motd_updates .
     
 # alt approach to azure-cli and deploy other system tools via pip
 RUN SODIUM_INSTALL=system pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli # aws-list-all
@@ -53,6 +58,7 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/turbot/steampipe-mod-aws-well-architected && \
     sudo git clone https://github.com/turbot/steampipe-mod-github-sherlock && \
     sudo git clone https://github.com/turbot/steampipe-mod-digitalocean-insights.git && \
+    sudo git clone https://github.com/turbot/steampipe-mod-snowflake-compliance.git && \
     sudo git clone https://github.com/trufflesecurity/trufflehog.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
     sudo git clone https://github.com/udhos/update-golang && \
@@ -84,12 +90,16 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steam
     steampipe plugin install github && \
     steampipe plugin install terraform && \
     steampipe plugin install digitalocean && \
-    steampipe plugin install microsoft365 
+    steampipe plugin install microsoft365 && \
+    steampipe plugin install snowflake
 
 WORKDIR /opt/steampipe-mod-aws-well-architected
 RUN steampipe mod install
 
 WORKDIR /opt/steampipe-mod-aws-top-10
+RUN steampipe mod install
+
+WORKDIR /opt/steampipe-mod-snowflake-compliance
 RUN steampipe mod install
     
 # Build Prowler Environment
@@ -97,8 +107,19 @@ WORKDIR /opt/prowler
 COPY ./prowler.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler 
 
+# Build bucketcloner (for Bitbucker)
+WORKDIR /opt/bitbucketcloner
+COPY ./bb-clone.sh .
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip bucketcloner
+
 # Install tfsec
 RUN sudo bash -c "curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash"
+
+# Install trivy (tfsec replacement)
+RUN sudo bash -c "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin"
+
+# Install Kubescape
+RUN sudo bash -c "curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash"
 
 # # temporary workaround - remove golang build steps until runtime
 # # Update Go-lang

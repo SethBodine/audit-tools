@@ -17,6 +17,14 @@ Currently serveral packages are configured (small list below), check out the [wi
 | kubeaudit | `kubeaudit` | ![](https://img.shields.io/github/last-commit/Shopify/kubeaudit) | [Using kubeaudit](https://github.com/SethBodine/docker/wiki/Using-kubeaudit) |
 | AzureHound | `AzureHound` | ![](https://img.shields.io/github/last-commit/BloodHoundAD/AzureHound) | [Using AzureHound](https://github.com/SethBodine/docker/wiki/Using-AzureHound)| 
 | tfsec | `tfsec` | ![](https://img.shields.io/github/last-commit/aquasecurity/tfsec) | [Using tfsec](https://github.com/SethBodine/docker/wiki/Using-tfsec) |
+| trivy | `trivy` | ![](https://img.shields.io/github/last-commit/aquasecurity/trivy) | [Using trivy](https://github.com/SethBodine/docker/wiki/Using-trivy) |
+| kubescape | `kubescape` | ![](https://img.shields.io/github/last-commit/kubescape/kubescape) | [Using kubescape](https://github.com/SethBodine/docker/wiki/Using-kubescape) |
+| bucketcloner | `bucketcloner` | ![](https://img.shields.io/github/last-commit/phillies/bucketcloner) | [Using bucketcloner](https://github.com/SethBodine/docker/wiki/Using-bucketcloner) |
 
 ## Recent Changes
-- Renamed repo
+- Introduced three new tools:
+  - trivy which will replace tfsec in the future
+  - kubescape
+  - bucketcloner (bitbucket workspace repo cloner)
+- Added a new steampipe module for Snowflake
+- Added an motd with updatetools status information
