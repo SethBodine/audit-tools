@@ -25,6 +25,7 @@ COPY ./motd .
 COPY ./motd_updates .
     
 # alt approach to azure-cli and deploy other system tools via pip
+ENV PIP_ROOT_USER_ACTION=ignore
 RUN SODIUM_INSTALL=system pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli # aws-list-all
 
 # create docker user
@@ -65,15 +66,9 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/Shopify/kubeaudit && \
     sudo git clone https://github.com/BloodHoundAD/AzureHound && \
     sudo mkdir /opt/prowler && sudo chown container:container -R /opt/*
-    #sudo git clone --branch prowler-2 --single-branch https://github.com/prowler-cloud/prowler && \
-    # sudo git clone https://github.com/bassammaged/awsEnum && \
-    # sudo git clone https://github.com/securisec/cliam && \
 
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
-# # temporary workaround - remove scoutsuite venv steps until runtime
-# # RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir -r requirements.txt
-# Drop scripts
 COPY ./scoutsuite.sh .
 
 # Build Steampipe
@@ -120,23 +115,6 @@ RUN sudo bash -c "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy
 
 # Install Kubescape
 RUN sudo bash -c "curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash"
-
-# # temporary workaround - remove golang build steps until runtime
-# # Update Go-lang
-# # WORKDIR /opt/update-golang 
-# # RUN sudo ./update-golang.sh
-
-# # Build Kubeaudit
-# WORKDIR /opt/kubeaudit
-# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
-
-# # Build Trufflehog
-# WORKDIR /opt/trufflehog
-# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
-
-# # Build AzureHound
-# WORKDIR /opt/AzureHound
-# RUN sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
 
 # Drop scripts
 WORKDIR /sbin/

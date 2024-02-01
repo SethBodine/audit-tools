@@ -1,6 +1,13 @@
 -------------------------------
 
-Updates are installing - please check /tmp for a log file to track these
+Updates are installing - please check /tmp for updatetools.*.log files to track these updates as they occur.
 
-Some applications may not be installed, or up to date yet
+The below applications may not be fully installed or ready for use until the container initisation script /sbin/updatetools completes.
+
+- scoutsuite 
+- trivy
+- kubescape
+- trufflehog
+- kubeaudit
+- azurehound
 

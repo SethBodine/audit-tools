@@ -13,14 +13,14 @@ sudo apt -y upgrade >>${LOGFILE}
 sudo apt -y dist-upgrade >>${LOGFILE}
 sudo apt -y autoremove >>${LOGFILE}
 
-# Update Github Repos
+echo "Updating Github Repos" >>${LOGFILE}
 cd /opt
 find . -name .git -type d | xargs -n1 -P4 -I% git --git-dir=% --work-tree=%/.. pull -p >>${LOGFILE} 
 
-# Update pip
-sudo pip install pip --upgrade
+echo "Updating pip packages" >>${LOGFILE}
+sudo pip install pip pynacl azure-cli --upgrade --root-user-action=ignore
 
-# Update Steampipe
+echo "Updating Steampipe" >>${LOGFILE}
 sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
 steampipe plugin update --all >>${LOGFILE} 
 
@@ -33,43 +33,39 @@ steampipe mod install
 cd /opt/steampipe-mod-snowflake-compliance
 steampipe mod install
 
-# Temporary Fix for scoutsuit blowout at build
+echo "Temporary Fix for scoutsuite blowout at build" >>${LOGFILE}
 cd /opt/ScoutSuite
 virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} && venv/bin/pip install --no-cache-dir -r requirements.txt >>${LOGFILE}
 
-# update trivy
-sudo /bin/sh -c "$(curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin)" >>${LOGFILE}
+echo "Updating trivy" >>${LOGFILE}
+sudo curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin >>${LOGFILE} 
 
-# update kubescape
-sudo /bin/sh -c "$(curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash)" >>${LOGFILE}
+echo "Updating kubescape" >>${LOGFILE}
+sudo curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash >>${LOGFILE} 
 
-# Update Go 
+echo "Updating Golang" >>${LOGFILE}
 cd /opt/update-golang
-# [[ "$(/usr/local/go/bin/go version | awk '{ print $3 }')" != "$(curl https://go.dev/VERSION?m=text)" ]] && sudo /opt/update-golang/update-golang.sh >>${LOGFILE}
 sudo ./update-golang.sh >>${LOGFILE}
 
-# updating trufflehog
+echo "Building trufflehog" >>${LOGFILE}
 cd /opt/trufflehog
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog" >>${LOGFILE}
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog >>${LOGFILE}"
 
-# updating kubeaudit
+echo "Building kubeaudit" >>${LOGFILE}
 cd /opt/kubeaudit
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit" >>${LOGFILE}
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ >>${LOGFILE} && chmod +x /usr/bin/kubeaudit"
 
-# updating AzureHound
+echo "Building AzureHound" >>${LOGFILE}
 cd /opt/AzureHound
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound" >>${LOGFILE}
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound >>${LOGFILE}"
 
-# fix perms
+echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 
-echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
+echo "Updated motd" >>${LOGFILE}
+sudo bash -c "echo -e '-------------------------------\n\nUpdates are now complete - container will shutdown within the next 48 hours\n\n' >/etc/motd_updates"
 
-# Updated motd
-sudo echo "-------------------------------" >/etc/motd_updates 
-sudo echo "" >>/etc/motd_updates
-sudo echo "Updates are now complete - container will shutdown in 48 hours" >>/etc/motd_updates
-sudo echo "" >>/etc/motd_updates
+echo "Update Script Ended: $(date +'%Y-%m-%d %H:%m:%s')" >>${LOGFILE}
 
 # stop container exiting
 sleep 48h
