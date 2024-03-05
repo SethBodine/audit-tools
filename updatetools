@@ -45,19 +45,20 @@ sudo curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/instal
 
 echo "Updating Golang" >>${LOGFILE}
 cd /opt/update-golang
-sudo ./update-golang.sh >>${LOGFILE}
+sudo rm -I /usr/local/go1.*
+sudo bash -c "./update-golang.sh " >>${LOGFILE}
 
 echo "Building trufflehog" >>${LOGFILE}
 cd /opt/trufflehog
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog >>${LOGFILE}"
+sudo bash -c ". /etc/profile.d/golang_path.sh; go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
 
 echo "Building kubeaudit" >>${LOGFILE}
 cd /opt/kubeaudit
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ >>${LOGFILE} && chmod +x /usr/bin/kubeaudit"
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
 
 echo "Building AzureHound" >>${LOGFILE}
 cd /opt/AzureHound
-sudo bash -c ". /etc/profile.d/golang_path.sh && go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound >>${LOGFILE}"
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
 
 echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
