@@ -115,6 +115,7 @@ RUN sudo bash -c "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy
 
 # Install Kubescape
 RUN sudo bash -c "curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash"
+ENV PATH "$PATH:/home/container/.kubescape/bin"
 
 # Drop scripts
 WORKDIR /sbin/
