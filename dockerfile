@@ -72,7 +72,8 @@ WORKDIR /opt/ScoutSuite/
 COPY ./scoutsuite.sh .
 
 # Build Steampipe
-RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" && \
+#RUN sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" && \
+RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" && \
     steampipe plugin install aws && \
     steampipe plugin install awscfn && \
     steampipe plugin install azure && \
@@ -96,6 +97,12 @@ RUN steampipe mod install
 
 WORKDIR /opt/steampipe-mod-snowflake-compliance
 RUN steampipe mod install
+
+# Build Powerpipe
+RUN sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)"
+WORKDIR /opt/Powerpipe
+COPY ./mod.pp .
+RUN powerpipe mod update
     
 # Build Prowler Environment
 WORKDIR /opt/prowler
