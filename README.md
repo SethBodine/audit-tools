@@ -10,7 +10,8 @@ Currently serveral packages are configured (small list below), check out the [wi
 | GCP Cli | `gcloud` | | [Using gcloud cli](https://github.com/SethBodine/docker/wiki/Cloud-Authentication-via-CLI#gcp) |
 | AWS CLI | `aws` | ![](https://img.shields.io/github/last-commit/aws/aws-cli) | [Using aws cli](https://github.com/SethBodine/docker/wiki/Cloud-Authentication-via-CLI#aws) |
 | Prowler v3 | `. /opt/prowler/prowler.sh && prowler` | ![](https://img.shields.io/github/last-commit/prowler-cloud/prowler) | [Using Prowler](https://github.com/SethBodine/docker/wiki/Using-Prowler-v3) |
-| SteamPipe | `steampipe` | ![](https://img.shields.io/github/last-commit/turbot/steampipe) | [Using steampipe](https://github.com/SethBodine/docker/wiki/Using-Steampipe) |
+| Steampipe | `steampipe` | ![](https://img.shields.io/github/last-commit/turbot/steampipe) | [Using steampipe](https://github.com/SethBodine/docker/wiki/Using-Steampipe) |
+| Powerpipe | `powerpipe` | ![](https://img.shields.io/github/last-commit/turbot/powerpipe) | [Using powerpipe](https://github.com/SethBodine/docker/wiki/Using-Powerpipe) |
 | ScoutSuite | `. /opt/ScoutSuite/scoutsuite.sh && /opt/ScoutSuite/scout.py` | ![](https://img.shields.io/github/last-commit/nccgroup/ScoutSuite) | [Using ScoutSuite](https://github.com/SethBodine/docker/wiki/Using-ScoutSuite) |
 | testssl | `/opt/testssl.sh/testssl.sh` | ![](https://img.shields.io/github/last-commit/drwetter/testssl.sh) | [Using testssl.sh](https://github.com/SethBodine/docker/wiki/Using-testssl.sh) |
 | trufflehog | `trufflehog` | ![](https://img.shields.io/github/last-commit/trufflesecurity/trufflehog) | [Using Trufflehog](https://github.com/SethBodine/docker/wiki/Using-Trufflehog) |
@@ -22,9 +23,5 @@ Currently serveral packages are configured (small list below), check out the [wi
 | bucketcloner | `. /opt/bucketcloner/bb-clone.sh && bucketcloner` | ![](https://img.shields.io/github/last-commit/phillies/bucketcloner) | [Using bucketcloner](https://github.com/SethBodine/docker/wiki/Using-bucketcloner) |
 
 ## Recent Changes
-- Introduced three new tools:
-  - trivy which will replace tfsec in the future
-  - kubescape
-  - bucketcloner (bitbucket workspace repo cloner)
-- Added a new steampipe module for Snowflake
-- Added an motd with updatetools status information
+- Preparing for Powerpipe replacement to Steampipe mods
+- updatetools script now pings messages to the connected bash process on its progress
