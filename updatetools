@@ -13,15 +13,19 @@ sudo apt -y upgrade >>${LOGFILE}
 sudo apt -y dist-upgrade >>${LOGFILE}
 sudo apt -y autoremove >>${LOGFILE}
 
+echo "\n** Update Tools ** Packages now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Updating Github Repos" >>${LOGFILE}
 cd /opt
 find . -name .git -type d | xargs -n1 -P4 -I% git --git-dir=% --work-tree=%/.. pull -p >>${LOGFILE} 
+echo "\n** Update Tools ** git repos now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Updating pip packages" >>${LOGFILE}
 sudo pip install pip pynacl azure-cli --upgrade --root-user-action=ignore
+echo "\n** Update Tools ** azure-cli now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Updating Steampipe" >>${LOGFILE}
-sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)" >>${LOGFILE}
+sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" >>${LOGFILE}
 steampipe plugin update --all >>${LOGFILE} 
 
 cd /opt/steampipe-mod-aws-well-architected
@@ -33,35 +37,55 @@ steampipe mod install
 cd /opt/steampipe-mod-snowflake-compliance
 steampipe mod install
 
+echo "Updating Powerpipe" >>${LOGFILE}
+sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)" >>${LOGFILE}
+cd /opt/Powerpipe
+powerpipe mod update
+echo "\n** Update Tools ** Steampipe and Powerpipe now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Temporary Fix for scoutsuite blowout at build" >>${LOGFILE}
 cd /opt/ScoutSuite
 virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} && venv/bin/pip install --no-cache-dir -r requirements.txt >>${LOGFILE}
+sudo sed -i '/scoutsuite/d' /etc/motd_updates 
+echo "\n** Update Tools ** ScoutSuite now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Updating trivy" >>${LOGFILE}
 sudo curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin >>${LOGFILE} 
+sudo sed -i '/trivy/d' /etc/motd_updates 
+echo "\n** Update Tools ** trivy now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Updating kubescape" >>${LOGFILE}
 sudo curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash >>${LOGFILE} 
+sudo sed -i '/kubescape/d' /etc/motd_updates 
+echo "\n** Update Tools ** kubescape now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Updating Golang" >>${LOGFILE}
 cd /opt/update-golang
 sudo rm -I /usr/local/go1.*
 sudo bash -c "./update-golang.sh " >>${LOGFILE}
+echo "\n** Update Tools ** go-lang now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Building trufflehog" >>${LOGFILE}
 cd /opt/trufflehog
 sudo bash -c ". /etc/profile.d/golang_path.sh; go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+sudo sed -i '/trufflehog/d' /etc/motd_updates 
+echo "\n** Update Tools ** trufflehig now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Building kubeaudit" >>${LOGFILE}
 cd /opt/kubeaudit
 sudo bash -c ". /etc/profile.d/golang_path.sh && go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kubeaudit ./cmd/ && chmod +x /usr/bin/kubeaudit"
+sudo sed -i '/kubeaudit/d' /etc/motd_updates 
+echo "\n** Update Tools ** kubeaudit now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Building AzureHound" >>${LOGFILE}
 cd /opt/AzureHound
 sudo bash -c ". /etc/profile.d/golang_path.sh && go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+sudo sed -i '/azurehound/d' /etc/motd_updates 
+echo "\n** Update Tools ** AzureHound now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
+echo "\n** Update Tools ** /opt is now up to date - all tools are now installed.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Updated motd" >>${LOGFILE}
 sudo bash -c "echo -e '-------------------------------\n\nUpdates are now complete - container will shutdown within the next 48 hours\n\n' >/etc/motd_updates"
