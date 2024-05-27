@@ -46,6 +46,7 @@ echo "\n** Update Tools ** Steampipe and Powerpipe now up to date.\n" > /proc/$(
 echo "Updating aws-cli" >>${LOGFILE}
 cd /opt/awscli
 sudo ./awscli-wrapper.sh >>${LOGFILE}
+sudo sed -i '/aws-cli/d' /etc/motd_updates 
 echo "\n** Update Tools ** aws-cli now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 
