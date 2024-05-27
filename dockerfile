@@ -33,7 +33,6 @@ USER container
 # Build awscli v2 
 WORKDIR /opt/awscli
 COPY ./awscli-wrapper.sh .
-RUN sudo ./awscli-wrapper.sh
 
 # alt approach to azure-cli and deploy other system tools via pip
 ENV PIP_ROOT_USER_ACTION=ignore
@@ -112,12 +111,12 @@ RUN powerpipe mod update
 # Build Prowler v3 Environment
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir "prowler<4.0.0"
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler<4.0.0"
 
 # Build Prowler v4 Environment
 WORKDIR /opt/prowler4
 COPY ./prowler4.sh .
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir "prowler"
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler"
 
 # Build bucketcloner (for Bitbucker)
 WORKDIR /opt/bitbucketcloner
