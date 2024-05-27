@@ -9,7 +9,8 @@ Currently serveral packages are configured (small list below), check out the [wi
 | Azure CLI | `az` | ![](https://img.shields.io/github/last-commit/Azure/azure-cli) | [Using az cli ](https://github.com/SethBodine/docker/wiki/Cloud-Authentication-via-CLI#azure) |
 | GCP Cli | `gcloud` | | [Using gcloud cli](https://github.com/SethBodine/docker/wiki/Cloud-Authentication-via-CLI#gcp) |
 | AWS CLI | `aws` | ![](https://img.shields.io/github/last-commit/aws/aws-cli) | [Using aws cli](https://github.com/SethBodine/docker/wiki/Cloud-Authentication-via-CLI#aws) |
-| Prowler v3 | `. /opt/prowler/prowler.sh && prowler` | ![](https://img.shields.io/github/last-commit/prowler-cloud/prowler) | [Using Prowler](https://github.com/SethBodine/docker/wiki/Using-Prowler-v3) |
+| Prowler v3 | `. /opt/prowler/prowler.sh && prowler` | ![](https://img.shields.io/github/last-commit/prowler-cloud/prowler/v3) | [Using Prowler](https://github.com/SethBodine/docker/wiki/Using-Prowler-v3) |
+| Prowler v4 | `. /opt/prowler4/prowler4.sh && prowler` | ![](https://img.shields.io/github/last-commit/prowler-cloud/prowler) | [Using Prowler](https://github.com/SethBodine/docker/wiki/Using-Prowler-v4) |
 | Steampipe | `steampipe` | ![](https://img.shields.io/github/last-commit/turbot/steampipe) | [Using steampipe](https://github.com/SethBodine/docker/wiki/Using-Steampipe) |
 | Powerpipe | `powerpipe` | ![](https://img.shields.io/github/last-commit/turbot/powerpipe) | [Using powerpipe](https://github.com/SethBodine/docker/wiki/Using-Powerpipe) |
 | ScoutSuite | `. /opt/ScoutSuite/scoutsuite.sh && /opt/ScoutSuite/scout.py` | ![](https://img.shields.io/github/last-commit/nccgroup/ScoutSuite) | [Using ScoutSuite](https://github.com/SethBodine/docker/wiki/Using-ScoutSuite) |
@@ -23,5 +24,5 @@ Currently serveral packages are configured (small list below), check out the [wi
 | bucketcloner | `. /opt/bucketcloner/bb-clone.sh && bucketcloner` | ![](https://img.shields.io/github/last-commit/phillies/bucketcloner) | [Using bucketcloner](https://github.com/SethBodine/docker/wiki/Using-bucketcloner) |
 
 ## Recent Changes
-- Preparing for Powerpipe replacement to Steampipe mods
-- updatetools script now pings messages to the connected bash process on its progress
+- Separating Prowler v3 and v4
+- Fixing aws-cli installation issues
