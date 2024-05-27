@@ -43,6 +43,12 @@ cd /opt/Powerpipe
 powerpipe mod update
 echo "\n** Update Tools ** Steampipe and Powerpipe now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
+echo "Updating aws-cli" >>${LOGFILE}
+cd /opt/awscli
+sudo ./awscli-wrapper.sh >>${LOGFILE}
+echo "\n** Update Tools ** aws-cli now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
+
 echo "Temporary Fix for scoutsuite blowout at build" >>${LOGFILE}
 cd /opt/ScoutSuite
 virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} && venv/bin/pip install --no-cache-dir -r requirements.txt >>${LOGFILE}

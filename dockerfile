@@ -8,31 +8,36 @@ LABEL "audit-tools"="" "org.opencontainers.image.documentation"="https://github.
 # Fixing Time and Date NZDT, 
 ENV TZ="Pacific/Auckland"
 # Add Google and Microsoft Ubuntu Repos and add fix for ScoutSuite
-# Install Python, AWS CLI, GCP, Git, and other tools, Fixing Time and Date NZDT
+# Install Python, GCP, Git, and other tools, Fixing Time and Date NZDT
 RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \ 
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl gpg lsb-release apt-utils ca-certificates && \
     echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
-       python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make awscli google-cloud-cli \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file && \
+       python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make google-cloud-cli \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # push motd
 WORKDIR /etc/
 COPY ./motd .
 COPY ./motd_updates .
-    
-# alt approach to azure-cli and deploy other system tools via pip
-ENV PIP_ROOT_USER_ACTION=ignore
-RUN SODIUM_INSTALL=system pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli # aws-list-all
 
 # create docker user
 RUN adduser --disabled-password --gecos '' container && adduser container sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 # Change to non-root privilege
 USER container
+
+# Build awscli v2 
+WORKDIR /opt/awscli
+COPY ./awscli-wrapper.sh .
+RUN sudo ./awscli-wrapper.sh
+
+# alt approach to azure-cli and deploy other system tools via pip
+ENV PIP_ROOT_USER_ACTION=ignore
+RUN SODIUM_INSTALL=system sudo pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli 
 
 # Deploy tools from Github 
 WORKDIR /opt/
@@ -104,10 +109,15 @@ WORKDIR /opt/Powerpipe
 COPY ./mod.pp .
 RUN powerpipe mod update
     
-# Build Prowler Environment
+# Build Prowler v3 Environment
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir prowler 
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir "prowler<4.0.0"
+
+# Build Prowler v4 Environment
+WORKDIR /opt/prowler4
+COPY ./prowler4.sh .
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip && venv/bin/pip install --no-cache-dir "prowler"
 
 # Build bucketcloner (for Bitbucker)
 WORKDIR /opt/bitbucketcloner
