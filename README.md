@@ -26,3 +26,4 @@ Currently serveral packages are configured (small list below), check out the [wi
 ## Recent Changes
 - Separating Prowler v3 and v4
 - Fixing aws-cli installation issues
+- Simplifying start-up
