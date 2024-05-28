@@ -37,7 +37,7 @@ jobs:
     #- name: Install jq
     #  run: sudo apt-get --purge -y install jq # Possible fix
     - name: Build a Docker image
-      run: docker build -t SethBodine/audit-tools .
+      run: docker build -t sethbodine/audit-tools .
     - name: Run Snyk to check Docker image for vulnerabilities
       # Snyk can be used to break the build when it detects vulnerabilities.
       # In this case we want to upload the issues to GitHub Code Scanning
@@ -49,7 +49,7 @@ jobs:
         # or you can signup for free at https://snyk.io/login
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
-        image: SethBodine/audit-tools
+        image: sethbodine/audit-tools
         args: --file=dockerfile
     #- name: Fix SARIF file # added section
     #  run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
