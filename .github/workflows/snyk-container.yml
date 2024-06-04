@@ -54,11 +54,11 @@ jobs:
     - name: Fix SARIF file # added section
       run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
     - name: Replace security-severity undefined for license-related findings 
-      run: sed -i 's/"security-severity": "undefined"/"security-severity": "0"/g' onlysnyk.sarif
-    - name: Output base SARIF file
-      run: cat snyk.sarif
-    - name: Output Modified SARIF file
-      run: cat onlysnyk.sarif
+      run: sed -i 's/\"security-severity\": \"undefined\"/\"security-severity\": \"0\"/g' onlysnyk.sarif
+    # - name: Output base SARIF file
+    #   run: cat snyk.sarif
+    # - name: Output Modified SARIF file
+    #   run: cat onlysnyk.sarif
     - name: Upload result to GitHub Code Scanning
       uses: github/codeql-action/upload-sarif@v3
       with:
