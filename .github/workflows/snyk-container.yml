@@ -51,10 +51,14 @@ jobs:
       with:
         image: sethbodine/audit-tools
         args: --file=dockerfile
+      # Replace any "null" security severity values with 0. The null value is used in the case
+      # of license-related findings, which do not do not indicate a security vulnerability.
+      # See https://github.com/github/codeql-action/issues/2187 for more context.
+    - name: Post process snyk sarif file  
+      run: |
+        sed -i 's/"security-severity": "null"/"security-severity": "0"/g' snyk.sarif
     - name: Fix SARIF file # added section
       run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
-    - name: Replace security-severity undefined for license-related findings 
-      run: sed -i 's/\"security-severity\": \"undefined\"/\"security-severity\": \"0\"/g' onlysnyk.sarif
     # - name: Output base SARIF file
     #   run: cat snyk.sarif
     # - name: Output Modified SARIF file
