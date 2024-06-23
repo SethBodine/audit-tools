@@ -118,6 +118,11 @@ WORKDIR /opt/prowler4
 COPY ./prowler4.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler"
 
+# Build semgrep
+WORKDIR /opt/semgrep
+COPY ./semgrep.sh .
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip
+
 # Build bucketcloner (for Bitbucker)
 WORKDIR /opt/bitbucketcloner
 COPY ./bb-clone.sh .
