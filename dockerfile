@@ -109,9 +109,9 @@ COPY ./mod.pp .
 RUN powerpipe mod update
     
 # Build Prowler v3 Environment
-WORKDIR /opt/prowler
-COPY ./prowler.sh .
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler<4.0.0"
+# WORKDIR /opt/prowler
+# COPY ./prowler.sh .
+# RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler<4.0.0"
 
 # Build Prowler v4 Environment
 WORKDIR /opt/prowler4
