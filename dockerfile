@@ -123,11 +123,6 @@ WORKDIR /opt/semgrep
 COPY ./semgrep.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip
 
-# Build bucketcloner (for Bitbucker)
-WORKDIR /opt/bitbucketcloner
-COPY ./bb-clone.sh .
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip bucketcloner
-
 # Install tfsec
 RUN sudo bash -c "curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash"
 
