@@ -6,6 +6,7 @@ on:
      - 'main'
   schedule:
     - cron:  '0 0 * * 1'    # Force Build Weekly
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
