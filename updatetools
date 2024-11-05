@@ -89,6 +89,14 @@ sudo bash -c ". /etc/profile.d/golang_path.sh && go build -buildvcs=false -v -a 
 sudo sed -i '/azurehound/d' /etc/motd_updates 
 echo "\n** Update Tools ** AzureHound now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
+echo "Building Dockerspy" >>${LOGFILE}
+cd /opt/DockerSpy
+sudo bash -c ". /etc/profile.d/golang_path.sh && go build -buildvcs=false -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/dockerspy"
+sudo mkdir /etc/dockerspy
+sudo cp -R src/* /etc/dockerspy
+sudo sed -i '/dockerspy/d' /etc/motd_updates 
+echo "\n** Update Tools ** DockerSpy now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 echo "\n** Update Tools ** /opt is now up to date - all tools are now installed.\n" > /proc/$(pidof /bin/bash)/fd/0

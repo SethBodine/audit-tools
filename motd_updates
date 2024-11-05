@@ -11,4 +11,5 @@ The below applications may not be fully installed or ready for use until the con
 - kubeaudit
 - azurehound
 - aws-cli
+- dockerpsy
 

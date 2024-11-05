@@ -21,7 +21,7 @@ Currently serveral packages are configured (small list below), check out the [wi
 | trivy | `trivy` | ![](https://img.shields.io/github/last-commit/aquasecurity/trivy) | [Using trivy](https://github.com/SethBodine/docker/wiki/Using-trivy) |
 | kubescape | `kubescape` | ![](https://img.shields.io/github/last-commit/kubescape/kubescape) | [Using kubescape](https://github.com/SethBodine/docker/wiki/Using-kubescape) |
 | semgrep | `./opt/semgrep/semgrep.sh && semgrep` | ![](https://img.shields.io/github/last-commit/semgrep/semgrep) | [Using semgrep](https://github.com/SethBodine/docker/wiki/Using-semgrep) |
+| dockerspy | `dockerspy` | ![](https://img.shields.io/github/last-commit/UndeadSec/DockerSpy) | [Using semgrep](https://github.com/SethBodine/docker/wiki/Using-dockerspy) |
 
 ## Recent Changes
-- Removed Prower v3
-- Removed bucketcloner
+- Added DockerSpy

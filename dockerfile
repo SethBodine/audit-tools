@@ -69,7 +69,8 @@ RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone https://github.com/udhos/update-golang && \
     sudo git clone https://github.com/Shopify/kubeaudit && \
     sudo git clone https://github.com/BloodHoundAD/AzureHound && \
-    sudo mkdir /opt/prowler && sudo chown container:container -R /opt/*
+    sudo git clone https://github.com/UndeadSec/DockerSpy.git && \
+    sudo chown container:container -R /opt/*
 
 # Build ScoutSuite Environment
 WORKDIR /opt/ScoutSuite/
@@ -108,11 +109,6 @@ WORKDIR /opt/Powerpipe
 COPY ./mod.pp .
 RUN powerpipe mod update
     
-# Build Prowler v3 Environment
-# WORKDIR /opt/prowler
-# COPY ./prowler.sh .
-# RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler<4.0.0"
-
 # Build Prowler v4 Environment
 WORKDIR /opt/prowler4
 COPY ./prowler4.sh .
