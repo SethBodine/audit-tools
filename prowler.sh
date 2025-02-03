@@ -1,8 +1,8 @@
 #!/bin/sh /usr/bin/source-this-script.sh
 # Prep Environment
 
-SCRIPT_PATH="/opt/prowler4/"
-APP_NAME="Prowler v4"
+SCRIPT_PATH="/opt/prowler/"
+APP_NAME="Prowler"
 
 #[[ ${VIRTUAL_ENV} ]] && deactivate
 if [ -n "${VIRTUAL_ENV+x}" ]; then deactivate; fi
