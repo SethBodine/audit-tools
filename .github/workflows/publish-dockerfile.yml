@@ -48,17 +48,30 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=schedule
-            type=ref,event=tag
-            type=ref,event=branch,suffix=-{{ sha }}
-            type=ref,event=pr
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=edge,branch=$repo.default_branch
-            type=ref,event=branch,priority=1000
+            type=raw,value={{ date 'YYYY-MM-DD' }}-${{ github.sha }}
+            type=sha,prefix=sha-
+
+            # type=schedule
+            # type=ref,event=tag
+            # type=ref,event=branch,suffix=-{{ sha }}
+            # type=ref,event=pr
+            # type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            # type=edge,branch=$repo.default_branch
+            # type=ref,event=branch,priority=1000
+          labels: |
+            org.opencontainers.image.title=${{ github.repository }}
+            org.opencontainers.image.description=Built from commit ${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.meta.outputs.created }}
+            org.opencontainers.image.authors=${{ github.actor }}
+            org.opencontainers.image.trigger=${{ github.event_name }}
+            org.opencontainers.image.commit.message=${{ github.event.head_commit.message }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
