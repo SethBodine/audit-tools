@@ -5,11 +5,9 @@ Updates are installing - please check /tmp for updatetools.*.log files to track 
 The below applications may not be fully installed or ready for use until the container initisation script /sbin/updatetools completes.
 
 - scoutsuite 
-- trivy
-- kubescape
-- trufflehog
 - kubeaudit
-- azurehound
-- aws-cli
-- dockerpsy
+- grype
 
+----
+Note: trufflehog, trivy, AzureHound, poutine, dockerspy, aws-cli will ONLY be updated when the container image is rebuilt.
+----

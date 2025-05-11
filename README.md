@@ -15,14 +15,33 @@ Currently serveral packages are configured (small list below), check out the [wi
 | ScoutSuite | `. /opt/ScoutSuite/scoutsuite.sh && /opt/ScoutSuite/scout.py` (stale) | ![](https://img.shields.io/github/last-commit/nccgroup/ScoutSuite) | [Using ScoutSuite](https://github.com/SethBodine/docker/wiki/Using-ScoutSuite) |
 | testssl | `/opt/testssl.sh/testssl.sh` | ![](https://img.shields.io/github/last-commit/drwetter/testssl.sh) | [Using testssl.sh](https://github.com/SethBodine/docker/wiki/Using-testssl.sh) |
 | trufflehog | `trufflehog` | ![](https://img.shields.io/github/last-commit/trufflesecurity/trufflehog) | [Using Trufflehog](https://github.com/SethBodine/docker/wiki/Using-Trufflehog) |
-| kubeaudit | `kubeaudit` (depricated) | ![](https://img.shields.io/github/last-commit/Shopify/kubeaudit) | [Using kubeaudit](https://github.com/SethBodine/docker/wiki/Using-kubeaudit) |
 | AzureHound | `AzureHound` | ![](https://img.shields.io/github/last-commit/BloodHoundAD/AzureHound) | [Using AzureHound](https://github.com/SethBodine/docker/wiki/Using-AzureHound)| 
-| tfsec | `tfsec` (replaced by trivy)| ![](https://img.shields.io/github/last-commit/aquasecurity/tfsec) | [Using tfsec](https://github.com/SethBodine/docker/wiki/Using-tfsec) |
 | trivy | `trivy` | ![](https://img.shields.io/github/last-commit/aquasecurity/trivy) | [Using trivy](https://github.com/SethBodine/docker/wiki/Using-trivy) |
 | kubescape | `kubescape` | ![](https://img.shields.io/github/last-commit/kubescape/kubescape) | [Using kubescape](https://github.com/SethBodine/docker/wiki/Using-kubescape) |
-| semgrep | `./opt/semgrep/semgrep.sh && semgrep` | ![](https://img.shields.io/github/last-commit/semgrep/semgrep) | [Using semgrep](https://github.com/SethBodine/docker/wiki/Using-semgrep) |
+| semgrep | `. /opt/semgrep/semgrep.sh && semgrep` | ![](https://img.shields.io/github/last-commit/semgrep/semgrep) | [Using semgrep](https://github.com/SethBodine/docker/wiki/Using-semgrep) |
 | dockerspy | `dockerspy` | ![](https://img.shields.io/github/last-commit/UndeadSec/DockerSpy) | [Using dockerspy](https://github.com/SethBodine/docker/wiki/Using-dockerspy) |
+| poutine | `poutine` | ![](https://img.shields.io/github/last-commit/boostsecurityio/poutine) | [Using poutine](https://github.com/SethBodine/docker/wiki/Using_poutine) |
+| aws_list_all | `aws_list_all` | ![](https://img.shields.io/github/last-commit/JohannesEbke/aws_list_all) | [Using aws_list_all](https://github.com/SethBodine/docker/wiki/Using_aws_list_all) |
+| grype | `grype` | ![](https://img.shields.io/github/last-commit/anchore/grype) | [Using grype](https://github.com/SethBodine/docker/wiki/Using_grype) |
 
 ## Recent Changes
-- added sipcalc (CIDR tool)
-- removed reference to version for prowler and updated prowler path from /opt/prowler4 to /opt/prowler
+- Updated pm-init.sh script and wiki for running the container - init is cleaner, and simpler now. 
+- Updaed container build workflow - tweaked tags and labels and looking to mature build and code commit workflows - watch this space
+- Tried a reduce the over-all size of the container, it builds faster, and leveraged multi-part container images - saved some space, not much - but nogolang bloat post startup
+- golang applications are now compiled at build - and will not be rebuilt at runtime (at this time) - reduces the overall bloat
+
+### Removed 
+The following stale and EOL/EOS applications have been removed and wiki documentation has been removed.
+- tfsec
+- kubeaudit
+- steampipe mods (replaced by powerpipe)
+
+### Added Tools
+The following new tools have been added
+- poutine
+- aws_list_all
+- grype
+- batcat (alternative to cat)
+- fdfind (find written in rust)
+- rg (grep written in rust)
+- dust (rust alternative to du)

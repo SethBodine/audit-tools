@@ -70,5 +70,29 @@ mod "local" {
     mod "github.com/turbot/steampipe-mod-snowflake-compliance.git" {
       version = "*"
     }
+    mod "github.com/turbot/steampipe-mod-alicloud-compliance" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-oci-compliance" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-terraform-oci-compliance" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-alicloud-insights" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-alicloud-thrifty" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-digitalocean-thrifty" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-oci-insights" {
+      version = "*"
+    }
+    mod "github.com/turbot/steampipe-mod-oci-thrifty" {
+      version = "*"
+    }
   }
 }
