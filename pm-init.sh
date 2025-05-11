@@ -43,28 +43,26 @@ REMOTE_DIGEST=$($CONTAINER_ENGINE pull --quiet --digestfile - "$IMAGE" 2>/dev/nu
 # --- Get local image digest ---
 LOCAL_DIGEST=$($CONTAINER_ENGINE inspect --format '{{ index .RepoDigests 0 }}' "$IMAGE" 2>/dev/null | cut -d@ -f2)
 
-# --- Compare digests ---
-if [ "$REMOTE_DIGEST" != "$LOCAL_DIGEST" ]; then
-    log "New image detected. Pulling latest version..."
-    $CONTAINER_ENGINE pull "$IMAGE" >/dev/null
-    IMAGE_UPDATED=true
-else
-    log "Image is already up to date."
-    IMAGE_UPDATED=false
-fi
-
-# --- Check if container is already running ---
+# --- Stop if running ---
 RUNNING=$($CONTAINER_ENGINE ps -q -f name="^${CONTAINER_NAME}$")
 if [ -n "$RUNNING" ]; then
-    log "Container '$CONTAINER_NAME' is already running. No changes made."
-    exit 0
+    log "Stopping running container '$CONTAINER_NAME'..."
+    $CONTAINER_ENGINE stop "$CONTAINER_NAME" >/dev/null
 fi
 
 # --- Remove stopped container if exists ---
 STOPPED=$($CONTAINER_ENGINE ps -a -q -f name="^${CONTAINER_NAME}$")
 if [ -n "$STOPPED" ]; then
-    log "Removing old container '$CONTAINER_NAME'."
+    log "Removing existing container '$CONTAINER_NAME'..."
     $CONTAINER_ENGINE rm "$CONTAINER_NAME" >/dev/null
+fi
+
+# --- Compare digests ---
+if [ "$REMOTE_DIGEST" != "$LOCAL_DIGEST" ]; then
+    log "New image detected. Pulling latest version..."
+    $CONTAINER_ENGINE pull "$IMAGE" >/dev/null
+else
+    log "Image is already up to date. Re-launching container..."
 fi
 
 log "Starting new container '$CONTAINER_NAME'..."
@@ -82,3 +80,17 @@ else
     log "Failed to start container."
     exit 1
 fi
+
+# --- Prune old versions of the same image ---
+log "Cleaning up unused older versions of '$IMAGE'..."
+CURRENT_ID=$($CONTAINER_ENGINE inspect --format '{{.Id}}' "$IMAGE" 2>/dev/null)
+
+for IMG_ID in $($CONTAINER_ENGINE images --no-trunc --quiet "$IMAGE" | sort | uniq); do
+    if [ "$IMG_ID" != "$CURRENT_ID" ]; then
+        USED=$($CONTAINER_ENGINE ps -a --filter ancestor="$IMG_ID" --format '{{.ID}}')
+        if [ -z "$USED" ]; then
+            log "Removing unused image ID: $IMG_ID"
+            $CONTAINER_ENGINE rmi "$IMG_ID" >/dev/null
+        fi
+    fi
+done
