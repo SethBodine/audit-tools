@@ -26,6 +26,7 @@ Currently serveral packages are configured (small list below), check out the [wi
 
 ## Recent Changes
 - Updated pm-init.sh script and wiki for running the container - init is cleaner, and simpler now. 
+> Note: docker is supported as a fallback if podman isn't available.
 - Updaed container build workflow - tweaked tags and labels and looking to mature build and code commit workflows - watch this space
 - Tried a reduce the over-all size of the container, it builds faster, and leveraged multi-part container images - saved some space, not much - but nogolang bloat post startup
 - golang applications are now compiled at build - and will not be rebuilt at runtime (at this time) - reduces the overall bloat
