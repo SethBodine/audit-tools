@@ -2,7 +2,7 @@ name: Grype Vulnerability Scan
 
 on:
   workflow_run:
-    workflows: ["Create and publish a Docker image"]  
+    workflows: ["Create SBOM for Container image"]  
     types:
       - completed
   workflow_dispatch:
@@ -22,31 +22,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Download SBOM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: audit-tools-sbom
+
       - name: Install Grype
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Download SBOM artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: sbom
-          path: ./sbom
-
-      - name: Scan SBOM with Grype
-        run: |
-          grype sbom:./sbom/sbom.spdx.json -o table --fail-on medium
-
-      # - name: Upload Grype scan results
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: grype-scan-results
-      #     path: grype-report.txt
-
       - name: Scan SBOM with Grype (SARIF output)
         run: |
-          grype sbom:./sbom/sbom.spdx.json -o sarif > grype-report.sarif
+          grype sbom:sbom.spdx.json -o sarif > grype-results.sarif
 
-      - name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: grype-report.sarif
+          sarif_file: grype-results.sarif
