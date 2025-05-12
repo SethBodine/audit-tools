@@ -46,11 +46,6 @@ else
     log "No running container '$CONTAINER_NAME' found. Skipping stop."
 fi
 
-#if $CONTAINER_ENGINE ps -q -f name="^${CONTAINER_NAME}$" >/dev/null; then
-#    log "Stopping running container '$CONTAINER_NAME'..."
-#    $CONTAINER_ENGINE stop "$CONTAINER_NAME" >/dev/null
-#fi
-
 # --- Remove stopped container if it exists ---
 EXISTS_ID=$($CONTAINER_ENGINE ps -a -q -f name="^${CONTAINER_NAME}$")
 if [ -n "$EXISTS_ID" ]; then
@@ -59,12 +54,6 @@ if [ -n "$EXISTS_ID" ]; then
 else
     log "No container '$CONTAINER_NAME' exists to remove."
 fi
-
-#if $CONTAINER_ENGINE ps -a -q -f name="^${CONTAINER_NAME}$" >/dev/null; then
-#    log "Removing old container '$CONTAINER_NAME'..."
-#    $CONTAINER_ENGINE rm "$CONTAINER_NAME" >/dev/null
-#fi
-
 
 # --- Pull new image if needed ---
 log "Pulling latest image. This will skip if already up to date..."
