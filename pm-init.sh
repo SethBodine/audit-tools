@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # chatgpt improvments included :)
 
@@ -31,41 +31,47 @@ fi
 mkdir -p "$LOG_DIR"
 
 log() {
-    printf "[%s] %s\n" "$(date '+%Y-%m-%d %H:%M:%S')" "$1" | tee -a "$LOG_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
 log "Using container engine: $CONTAINER_ENGINE"
 
-# --- Pull latest image and get remote digest ---
-log "Checking for image updates..."
-REMOTE_DIGEST=$($CONTAINER_ENGINE pull --quiet --digestfile - "$IMAGE" 2>/dev/null | awk '/Digest:/ {print $2}')
+# --- Stop container if running ---
+RUNNING_ID=$($CONTAINER_ENGINE ps -q -f name="^${CONTAINER_NAME}$")
 
-# --- Get local image digest ---
-LOCAL_DIGEST=$($CONTAINER_ENGINE inspect --format '{{ index .RepoDigests 0 }}' "$IMAGE" 2>/dev/null | cut -d@ -f2)
-
-# --- Stop if running ---
-RUNNING=$($CONTAINER_ENGINE ps -q -f name="^${CONTAINER_NAME}$")
-if [ -n "$RUNNING" ]; then
+if [ -n "$RUNNING_ID" ]; then
     log "Stopping running container '$CONTAINER_NAME'..."
     $CONTAINER_ENGINE stop "$CONTAINER_NAME" >/dev/null
-fi
-
-# --- Remove stopped container if exists ---
-STOPPED=$($CONTAINER_ENGINE ps -a -q -f name="^${CONTAINER_NAME}$")
-if [ -n "$STOPPED" ]; then
-    log "Removing existing container '$CONTAINER_NAME'..."
-    $CONTAINER_ENGINE rm "$CONTAINER_NAME" >/dev/null
-fi
-
-# --- Compare digests ---
-if [ "$REMOTE_DIGEST" != "$LOCAL_DIGEST" ]; then
-    log "New image detected. Pulling latest version..."
-    $CONTAINER_ENGINE pull "$IMAGE" >/dev/null
 else
-    log "Image is already up to date. Re-launching container..."
+    log "No running container '$CONTAINER_NAME' found. Skipping stop."
 fi
 
-log "Starting new container '$CONTAINER_NAME'..."
+#if $CONTAINER_ENGINE ps -q -f name="^${CONTAINER_NAME}$" >/dev/null; then
+#    log "Stopping running container '$CONTAINER_NAME'..."
+#    $CONTAINER_ENGINE stop "$CONTAINER_NAME" >/dev/null
+#fi
+
+# --- Remove stopped container if it exists ---
+EXISTS_ID=$($CONTAINER_ENGINE ps -a -q -f name="^${CONTAINER_NAME}$")
+if [ -n "$EXISTS_ID" ]; then
+    log "Removing old container '$CONTAINER_NAME'..."
+    $CONTAINER_ENGINE rm "$CONTAINER_NAME" >/dev/null
+else
+    log "No container '$CONTAINER_NAME' exists to remove."
+fi
+
+#if $CONTAINER_ENGINE ps -a -q -f name="^${CONTAINER_NAME}$" >/dev/null; then
+#    log "Removing old container '$CONTAINER_NAME'..."
+#    $CONTAINER_ENGINE rm "$CONTAINER_NAME" >/dev/null
+#fi
+
+
+# --- Pull new image if needed ---
+log "Pulling latest image. This will skip if already up to date..."
+$CONTAINER_ENGINE pull "$IMAGE" >/dev/null
+
+# --- Start container in detached mode ---
+log "Starting container '$CONTAINER_NAME'..."
 $CONTAINER_ENGINE run -d \
     --name "$CONTAINER_NAME" \
     -p 9194:9194 \
@@ -74,21 +80,27 @@ $CONTAINER_ENGINE run -d \
     $MOUNT_FLAGS \
     "$IMAGE" /sbin/updatetools >/dev/null
 
-if [ $? -eq 0 ]; then
-    log "Container started successfully."
-else
+if [[ $? -ne 0 ]]; then
     log "Failed to start container."
     exit 1
 fi
 
-# --- Prune old versions of the same image ---
-log "Cleaning up unused older versions of '$IMAGE'..."
+# --- Drop into interactive shell ---
+log "Attaching to container shell. Exit when done."
+$CONTAINER_ENGINE exec -it --user container "$CONTAINER_NAME" /bin/bash
+
+# --- Stop container after shell exit ---
+log "Stopping container '$CONTAINER_NAME'..."
+$CONTAINER_ENGINE stop "$CONTAINER_NAME" >/dev/null
+
+# --- Clean up old image versions ---
+log "Cleaning up older unused versions of '$IMAGE'..."
 CURRENT_ID=$($CONTAINER_ENGINE inspect --format '{{.Id}}' "$IMAGE" 2>/dev/null)
 
 for IMG_ID in $($CONTAINER_ENGINE images --no-trunc --quiet "$IMAGE" | sort | uniq); do
-    if [ "$IMG_ID" != "$CURRENT_ID" ]; then
+    if [[ "$IMG_ID" != "$CURRENT_ID" ]]; then
         USED=$($CONTAINER_ENGINE ps -a --filter ancestor="$IMG_ID" --format '{{.ID}}')
-        if [ -z "$USED" ]; then
+        if [[ -z "$USED" ]]; then
             log "Removing unused image ID: $IMG_ID"
             $CONTAINER_ENGINE rmi "$IMG_ID" >/dev/null
         fi
