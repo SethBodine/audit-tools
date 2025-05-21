@@ -99,7 +99,7 @@ jobs:
           fi
 
       - name: Create issue if merge fails
-        if: ${{ steps.merge.outcome == 'failure' }}
+        if: ${{ steps.merge.merge_outcome == 'failure' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
