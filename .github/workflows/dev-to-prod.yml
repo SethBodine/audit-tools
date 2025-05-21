@@ -55,15 +55,20 @@ jobs:
             --title "Promote: ${{ github.sha }}" \
             --body-file pr_body.md
 
+          # Set PR number output after creation
+          PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
       - name: Attempt auto-merge
         id: merge
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Use PR number from either check or create step
           PR_NUMBER=${{ steps.check_pr.outputs.pr_number }}
-          if [ -z "$PR_NUMBER" ]; then
-            PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+          if [ -z "$PR_NUMBER" ] && [ "${{ steps.create_pr.outcome }}" == "success" ]; then
+            PR_NUMBER=${{ steps.create_pr.outputs.pr_number }}
           fi
 
           if [ -n "$PR_NUMBER" ]; then
@@ -93,7 +98,7 @@ jobs:
     name: Sync dev to main after merge
     needs: create-and-merge-pr
     runs-on: ubuntu-latest
-    if: ${{ needs.create-and-merge-pr.outputs['merge.outcome'] == 'success' }}
+    if: needs.create-and-merge-pr.outputs.merge_outcome == 'success'
 
     steps:
       - name: Checkout main branch
