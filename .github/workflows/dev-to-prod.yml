@@ -79,7 +79,7 @@ jobs:
           fi
 
           if [ -n "$PR_NUMBER" ]; then
-            gh pr merge "$PR_NUMBER" --auto --squash --delete-branch 2>merge-error.log || echo "failed" > merge-status.txt
+            gh pr merge "$PR_NUMBER" --auto --squash 2>merge-error.log || echo "failed" > merge-status.txt
             echo "PR found: $PR_NUMBER merge status:"
             cat merge-status.txt
             echo "end of output"
