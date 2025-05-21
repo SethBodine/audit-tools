@@ -41,7 +41,28 @@ jobs:
             --base main \
             --head dev \
             --title "Promote: ${{ github.sha }}" \
-            --body "Automated PR\n\n**Commit Info:**\n- SHA: \`${{ github.sha }}\`\n- Author: $AUTHOR\n- Date: $DATE\n\n**Summary of Commits:**\n\`\`\`\n$COMMIT_LIST\n\`\`\`\n\n**Commit Message:**\n$COMMIT_MESSAGE\n\n**Files Changed:**\`\`\`$CHANGED_FILES\`\`\`"
+            --body "$(cat <<EOF
+Automated PR
+
+**Commit Info:**
+- SHA: \`${{ github.sha }}\`
+- Author: $AUTHOR
+- Date: $DATE
+
+**Summary of Commits:**
+\`\`\`
+$COMMIT_LIST
+\`\`\`
+
+**Commit Message:**
+$COMMIT_MESSAGE
+
+**Files Changed:**
+\`\`\`
+$CHANGED_FILES
+\`\`\`
+EOF
+)"
 
       - name: Try auto-merge
         id: merge
@@ -79,6 +100,14 @@ jobs:
 
           gh issue create \
             --title "Auto-merge failed for commit ${{ github.sha }}" \
-            --body "**Merge error:**\n\`\`\`\n$ERROR_MSG\n\`\`\`\n\n[View workflow run]($WORKFLOW_URL)" \
-            --label "bug,auto-merge-failure" \
+            --body "$(cat <<EOF
+**Merge error:**
+\`\`\`
+$ERROR_MSG
+\`\`\`
+
+[View workflow run]($WORKFLOW_URL)
+EOF
+)" \
+            --label bug --label auto-merge-failure \
             --assignee "${{ github.actor }}"
