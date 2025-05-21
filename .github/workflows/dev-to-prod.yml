@@ -13,6 +13,9 @@ jobs:
       contents: write
       pull-requests: write
 
+    outputs:
+      merge.outcome: ${{ steps.set_merge_output.outputs.merge_outcome }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -78,6 +81,15 @@ jobs:
             echo "failed" > merge-status.txt
           fi
 
+      - name: Set merge outcome output
+        id: set_merge_output
+        run: |
+          if [ -f merge-status.txt ] && grep -q "failed" merge-status.txt; then
+            echo "merge_outcome=failure" >> $GITHUB_OUTPUT
+          else
+            echo "merge_outcome=success" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create issue if merge fails
         if: ${{ steps.merge.outcome == 'failure' }}
         env:
@@ -98,7 +110,7 @@ jobs:
     name: Sync dev to main after merge
     needs: create-and-merge-pr
     runs-on: ubuntu-latest
-    if: needs.create-and-merge-pr.outputs.merge_outcome == 'success'
+    if: ${{ needs.create-and-merge-pr.outputs.merge.outcome == 'success' }}
 
     steps:
       - name: Checkout main branch
