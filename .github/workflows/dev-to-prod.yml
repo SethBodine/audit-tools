@@ -48,7 +48,7 @@ jobs:
               --base main \
               --head dev \
               --title "Promote: ${{ github.sha }}" \
-              --body pr_body.md
+              --body-file pr_body.md
           fi
 
       - name: Try auto-merge
@@ -97,6 +97,6 @@ jobs:
 
           gh issue create \
             --title "Auto-merge failed for commit ${{ github.sha }}" \
-            --body issue_body.md \
+            --body-file issue_body.md \
             --label bug --label auto-merge-failure \
             --assignee "${{ github.actor }}"
