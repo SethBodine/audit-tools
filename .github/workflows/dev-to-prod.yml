@@ -1,0 +1,78 @@
+name: Promote dev to main
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  create-and-merge-pr:
+    name: PR from dev to main
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create PR from dev to main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUTHOR=$(git log -1 --pretty=format:'%an')
+          DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
+          COMMIT_MESSAGE="$(git log -1 --pretty=format:'%s%n%n%b')"
+          COMMIT_LIST="$(git log origin/main..HEAD --oneline)"
+
+          gh pr create \
+            --base main \
+            --head dev \
+            --title "Promote: ${{ github.sha }}" \
+            --body "Automated PR\n\n**Commit Info:**\n- SHA: \`${{ github.sha }}\`\n- Author: $AUTHOR\n- Date: $DATE\n\n**Summary of Commits:**\n\`\`\`\n$COMMIT_LIST\n\`\`\`\n\n**Commit Message:**\n$COMMIT_MESSAGE"
+
+      - name: Try auto-merge
+        id: merge
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge --auto --squash --delete-branch 2>merge-error.log || echo "failed" > merge-status.txt
+
+      - name: Close previous merge failure issues
+        if: ${{ steps.merge.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUES=$(gh issue list --state open --label "auto-merge-failure" --limit 10 --json number,title)
+
+          for row in $(echo "$ISSUES" | jq -c '.[]'); do
+            TITLE=$(echo "$row" | jq -r '.title')
+            NUMBER=$(echo "$row" | jq -r '.number')
+
+            # Optionally refine this with a specific SHA match
+            if [[ "$TITLE" == Auto-merge\ failed* ]]; then
+              echo "Closing issue #$NUMBER: $TITLE"
+              gh issue close "$NUMBER" --comment "Auto-merge now succeeded. Closing this issue."
+            fi
+          done
+
+      - name: Create issue if merge fails
+        if: ${{ steps.merge.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ERROR_MSG=$(cat merge-error.log)
+          WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          gh issue create \
+            --title "Auto-merge failed for commit ${{ github.sha }}" \
+            --body "**Merge error:**\n\`\`\`\n$ERROR_MSG\n\`\`\`\n\n[View workflow run]($WORKFLOW_URL)" \
+            --label "bug,auto-merge-failure" \
+            --assignee "${{ github.actor }}"
