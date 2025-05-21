@@ -39,11 +39,17 @@ jobs:
 
           printf "Automated PR\n\n**Commit Info:**\n- SHA: \`${{ github.sha }}\`\n- Author: $AUTHOR\n- Date: $DATE\n\n**Summary of Commits:**\n\`\`\`\n$COMMIT_LIST\n\`\`\`\n\n**Commit Message:**\n$COMMIT_MESSAGE\n\n**Files Changed:**\n\`\`\`\n$CHANGED_FILES\n\`\`\`\n" > pr_body.md
 
-          gh pr create \
-            --base main \
-            --head dev \
-            --title "Promote: ${{ github.sha }}" \
-            --body pr_body.md
+          EXISTING_PR=$(gh pr view dev --base main --json url -q .url 2>/dev/null || true)
+          
+          if [[ -n "$EXISTING_PR" ]]; then
+            echo "PR already exists: $EXISTING_PR"
+          else
+            gh pr create \
+              --base main \
+              --head dev \
+              --title "Promote: ${{ github.sha }}" \
+              --body pr_body.md
+          fi
 
       - name: Try auto-merge
         id: merge
@@ -70,6 +76,14 @@ jobs:
               gh issue close "$NUMBER" --comment "Auto-merge now succeeded. Closing this issue."
             fi
           done
+
+      - name: Sync dev to main
+        if: ${{ steps.merge.outcome == 'success' }}
+        run: |
+          git fetch origin
+          git checkout dev
+          git reset --hard origin/main
+          git push --force
 
       - name: Create issue if merge fails
         if: ${{ steps.merge.outcome == 'failure' }}
