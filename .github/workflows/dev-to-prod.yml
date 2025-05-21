@@ -12,6 +12,10 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
+
+    outputs:
+      merge.outcome: ${{ steps.set_merge_output.outputs.merge_outcome }}
 
     steps:
       - name: Checkout repo
@@ -34,9 +38,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number' || echo "")
+          echo "pr_number=$PR_NUMBER"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Create PR if none exist
+        id: create_pr
         if: steps.check_pr.outputs.pr_number == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,26 +61,46 @@ jobs:
             --title "Promote: ${{ github.sha }}" \
             --body-file pr_body.md
 
+          # Set PR number output after creation
+          PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+          echo "pr_number=$PR_NUMBER"
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+
       - name: Attempt auto-merge
         id: merge
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Use PR number from either check or create step
           PR_NUMBER=${{ steps.check_pr.outputs.pr_number }}
-          if [ -z "$PR_NUMBER" ]; then
-            PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+          if [ -z "$PR_NUMBER" ] && [ "${{ steps.create_pr.outcome }}" == "success" ]; then
+            PR_NUMBER=${{ steps.create_pr.outputs.pr_number }}
           fi
 
           if [ -n "$PR_NUMBER" ]; then
             gh pr merge "$PR_NUMBER" --auto --squash --delete-branch 2>merge-error.log || echo "failed" > merge-status.txt
+            echo "PR found: $PR_NUMBER merge status:"
+            cat merge-status.txt
+            echo "end of output"
           else
             echo "No PR found to merge"
             echo "failed" > merge-status.txt
           fi
 
+      - name: Set merge outcome output
+        id: set_merge_output
+        run: |
+          if [ -f merge-status.txt ] && grep -q "failed" merge-status.txt; then
+            echo "merge_outcome=failure" >> $GITHUB_OUTPUT
+            echo "merge_outcome=failure" 
+          else
+            echo "merge_outcome=success" >> $GITHUB_OUTPUT
+            echo "merge_outcome=success" 
+          fi
+
       - name: Create issue if merge fails
-        if: ${{ steps.merge.outcome == 'failure' }}
+        if: ${{ steps.set_merge_output.outputs.merge_outcome == 'failure' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -93,7 +119,7 @@ jobs:
     name: Sync dev to main after merge
     needs: create-and-merge-pr
     runs-on: ubuntu-latest
-    if: ${{ needs.create-and-merge-pr.outputs['merge.outcome'] == 'success' }}
+    if: ${{ needs.create-and-merge-pr.outputs.merge.outcome == 'success' }}
 
     steps:
       - name: Checkout main branch
