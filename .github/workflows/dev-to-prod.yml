@@ -40,6 +40,7 @@ jobs:
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Create PR if none exist
+        id: create_pr
         if: steps.check_pr.outputs.pr_number == ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
