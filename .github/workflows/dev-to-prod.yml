@@ -37,6 +37,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number' || echo "")
+          echo "pr_number=$PR_NUMBER"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Create PR if none exist
@@ -61,6 +62,7 @@ jobs:
 
           # Set PR number output after creation
           PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+          echo "pr_number=$PR_NUMBER"
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: Attempt auto-merge
