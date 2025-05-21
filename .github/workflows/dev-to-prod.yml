@@ -25,12 +25,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create PR from dev to main
+      - name: Fetch main
+        run: git fetch origin main
+
+      - name: Check if PR already exists
+        id: check_pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git fetch origin main
+          PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number' || echo "")
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
+      - name: Create PR if none exist
+        if: steps.check_pr.outputs.pr_number == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           AUTHOR=$(git log -1 --pretty=format:'%an')
           DATE=$(git log -1 --pretty=format:'%ad' --date=iso)
           COMMIT_MESSAGE="$(git log -1 --pretty=format:'%s%n%n%b')"
@@ -43,33 +53,25 @@ jobs:
             --base main \
             --head dev \
             --title "Promote: ${{ github.sha }}" \
-            --body pr_body.md
+            --body-file pr_body.md
 
-      - name: Try auto-merge
+      - name: Attempt auto-merge
         id: merge
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr merge --auto --squash --delete-branch 2>merge-error.log || echo "failed" > merge-status.txt
+          PR_NUMBER=${{ steps.check_pr.outputs.pr_number }}
+          if [ -z "$PR_NUMBER" ]; then
+            PR_NUMBER=$(gh pr list --base main --head dev --state open --json number -q '.[0].number')
+          fi
 
-      - name: Close previous merge failure issues
-        if: ${{ steps.merge.outcome == 'success' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUES=$(gh issue list --state open --label "auto-merge-failure" --limit 10 --json number,title)
-
-          for row in $(echo "$ISSUES" | jq -c '.[]'); do
-            TITLE=$(echo "$row" | jq -r '.title')
-            NUMBER=$(echo "$row" | jq -r '.number')
-
-            # Optionally refine this with a specific SHA match
-            if [[ "$TITLE" == Auto-merge\ failed* ]]; then
-              echo "Closing issue #$NUMBER: $TITLE"
-              gh issue close "$NUMBER" --comment "Auto-merge now succeeded. Closing this issue."
-            fi
-          done
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr merge "$PR_NUMBER" --auto --squash --delete-branch 2>merge-error.log || echo "failed" > merge-status.txt
+          else
+            echo "No PR found to merge"
+            echo "failed" > merge-status.txt
+          fi
 
       - name: Create issue if merge fails
         if: ${{ steps.merge.outcome == 'failure' }}
@@ -78,11 +80,37 @@ jobs:
         run: |
           ERROR_MSG=$(cat merge-error.log)
           WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          printf "**Merge error:**\n\`\`\`\n$ERROR_MSG\n\`\`\`\n\n[View workflow run]($WORKFLOW_URL)\n" > issue_body.md
+          
+          printf "Automated Issue\n\n**Merge error:**\n\`\`\`\n$ERROR_MSG\n\`\`\`\n\n[View workflow run]($WORKFLOW_URL)" > issue_body.md
 
           gh issue create \
             --title "Auto-merge failed for commit ${{ github.sha }}" \
-            --body issue_body.md \
+            --body-file issue_body.md \
             --label bug --label auto-merge-failure \
             --assignee "${{ github.actor }}"
+
+  sync-dev:
+    name: Sync dev to main after merge
+    needs: create-and-merge-pr
+    runs-on: ubuntu-latest
+    if: ${{ needs.create-and-merge-pr.outputs['merge.outcome'] == 'success' }}
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync dev with main
+        run: |
+          git fetch origin
+          git checkout dev
+          git reset --hard origin/main
+          git push origin dev --force
+
