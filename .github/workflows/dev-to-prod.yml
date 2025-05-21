@@ -37,32 +37,13 @@ jobs:
           COMMIT_LIST="$(git log origin/main..HEAD --oneline)"
           CHANGED_FILES=$(git diff --name-only origin/main..HEAD)
 
+          printf "Automated PR\n\n**Commit Info:**\n- SHA: \`${{ github.sha }}\`\n- Author: $AUTHOR\n- Date: $DATE\n\n**Summary of Commits:**\n\`\`\`\n$COMMIT_LIST\n\`\`\`\n\n**Commit Message:**\n$COMMIT_MESSAGE\n\n**Files Changed:**\n\`\`\`\n$CHANGED_FILES\n\`\`\`\n" > pr_body.md
+
           gh pr create \
             --base main \
             --head dev \
             --title "Promote: ${{ github.sha }}" \
-            --body "$(cat <<EOF
-Automated PR
-
-**Commit Info:**
-- SHA: \`${{ github.sha }}\`
-- Author: $AUTHOR
-- Date: $DATE
-
-**Summary of Commits:**
-\`\`\`
-$COMMIT_LIST
-\`\`\`
-
-**Commit Message:**
-$COMMIT_MESSAGE
-
-**Files Changed:**
-\`\`\`
-$CHANGED_FILES
-\`\`\`
-EOF
-)"
+            --body pr_body.md
 
       - name: Try auto-merge
         id: merge
@@ -98,16 +79,10 @@ EOF
           ERROR_MSG=$(cat merge-error.log)
           WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
+          printf "**Merge error:**\n\`\`\`\n$ERROR_MSG\n\`\`\`\n\n[View workflow run]($WORKFLOW_URL)\n" > issue_body.md
+
           gh issue create \
             --title "Auto-merge failed for commit ${{ github.sha }}" \
-            --body "$(cat <<EOF
-**Merge error:**
-\`\`\`
-$ERROR_MSG
-\`\`\`
-
-[View workflow run]($WORKFLOW_URL)
-EOF
-)" \
+            --body issue_body.md \
             --label bug --label auto-merge-failure \
             --assignee "${{ github.actor }}"
