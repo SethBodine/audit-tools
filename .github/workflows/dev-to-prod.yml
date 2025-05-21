@@ -12,6 +12,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
 
     outputs:
       merge.outcome: ${{ steps.set_merge_output.outputs.merge_outcome }}
