@@ -79,6 +79,9 @@ jobs:
 
           if [ -n "$PR_NUMBER" ]; then
             gh pr merge "$PR_NUMBER" --auto --squash --delete-branch 2>merge-error.log || echo "failed" > merge-status.txt
+            echo "PR found: $PR_NUMBER merge status:"
+            cat merge-status.txt
+            echo "end of output"
           else
             echo "No PR found to merge"
             echo "failed" > merge-status.txt
@@ -89,8 +92,10 @@ jobs:
         run: |
           if [ -f merge-status.txt ] && grep -q "failed" merge-status.txt; then
             echo "merge_outcome=failure" >> $GITHUB_OUTPUT
+            echo "merge_outcome=failure" 
           else
             echo "merge_outcome=success" >> $GITHUB_OUTPUT
+            echo "merge_outcome=success" 
           fi
 
       - name: Create issue if merge fails
