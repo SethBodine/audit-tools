@@ -25,28 +25,14 @@ Currently serveral packages are configured (small list below), check out the [wi
 | aws_list_all | `aws_list_all` | ![](https://img.shields.io/github/last-commit/JohannesEbke/aws_list_all) | [Using aws_list_all](https://github.com/SethBodine/docker/wiki/Using_aws_list_all) |
 | grype | `grype` | ![](https://img.shields.io/github/last-commit/anchore/grype) | [Using grype](https://github.com/SethBodine/docker/wiki/Using_grype) |
 | syft | `syft` | ![](https://img.shields.io/github/last-commit/anchore/syft) | [Using syft](https://github.com/SethBodine/docker/wiki/Using_syft) |
-| checkov | `/opt/semgrep/checkov.sh && checkov` | ![](https://img.shields.io/github/last-commit/)bridgecrewio/checkov | [Using checkov](https://github.com/SethBodine/docker/wiki/Using_checkov) |
+| checkov | `/opt/semgrep/checkov.sh && checkov` | ![](https://img.shields.io/github/last-commit/bridgecrewio/checkov) | [Using checkov](https://github.com/SethBodine/docker/wiki/Using_checkov) |
 
 ## Recent Changes
 - Fixed a few issues - including prowler not supporting python 3.13 
 - Wound back some of my workflows - resulted in messiness
-- golang applications are now compiled at build - and will not be rebuilt at runtime (at this time) - reduces the overall bloat
-
-### Removed 
-The following stale and EOL/EOS applications have been removed and wiki documentation has been removed.
-- tfsec
-- kubeaudit
-- steampipe mods (replaced by powerpipe)
 
 ### Added Tools
 The following new tools have been added
-- poutine
-- aws_list_all
-- grype
 - syft
 - kube-bench
 - checkov
-- batcat (alternative to cat)
-- fdfind (find written in rust)
-- rg (grep written in rust)
-- dust (rust alternative to du)
