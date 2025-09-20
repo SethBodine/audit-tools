@@ -37,7 +37,7 @@ jobs:
     - name: Install jq
       run: sudo apt-get --purge -y install jq # Possible fix
     - name: Build a Docker image
-      run: docker build -t sethbodine/audit-tools .
+      run: docker build -t sethbodine/audit-tools -f containerfile .
     - name: Run Snyk to check Docker image for vulnerabilities
       # Snyk can be used to break the build when it detects vulnerabilities.
       # In this case we want to upload the issues to GitHub Code Scanning
@@ -50,7 +50,7 @@ jobs:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
         image: sethbodine/audit-tools
-        args: --file=dockerfile
+        args: --file=containerfile
       # Replace any "null" security severity values with 0. The null value is used in the case
       # of license-related findings, which do not do not indicate a security vulnerability.
       # See https://github.com/github/codeql-action/issues/2187 for more context.
