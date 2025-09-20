@@ -8,7 +8,8 @@ WORKDIR /opt/
 RUN git clone https://github.com/BloodHoundAD/AzureHound && \
     git clone https://github.com/trufflesecurity/trufflehog.git && \
     git clone https://github.com/UndeadSec/DockerSpy.git && \
-    git clone https://github.com/boostsecurityio/poutine 
+    git clone https://github.com/boostsecurityio/poutine && \
+    git clone https://github.com/aquasecurity/kube-bench.git
 
 # UMMM maybe not Build Trufflehog docker build must now include --build-arg TARGETARCH=${{ matrix.arch }}
 WORKDIR /opt/trufflehog
@@ -26,6 +27,10 @@ RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags
 # Build poutine
 WORKDIR /opt/poutine
 RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/poutine"
+
+# build kube-bench
+WORKDIR /opt/kube-bench
+RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kube-bench"
 
 #AWS CLI
 FROM amazon/aws-cli:latest AS awscli
@@ -49,8 +54,10 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make google-cloud-cli bat fd-find ripgrep du-dust \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl pkg-config libffi-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Added pkg-config libffi-dev for prowler fix
 
 # push motd
 WORKDIR /etc/
@@ -70,29 +77,6 @@ RUN SODIUM_INSTALL=system sudo pip install --no-cache-dir pynacl; sudo pip insta
 # Deploy tools from Github - removed golang applications - these will be built upstream
 WORKDIR /opt/
 RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-aws-insights && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-aws-thrifty && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-aws-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-azure-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-azure-thrifty && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-azure-insights && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-gcp-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-gcp-insights && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-gcp-thrifty && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-kubernetes-insights && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-net-insights && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-microsoft365-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-github-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-terraform-aws-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-terraform-azure-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-terraform-gcp-compliance && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-aws-perimeter && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-aws-top-10 && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-aws-well-architected && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-github-sherlock && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-digitalocean-insights.git && \
-#    sudo git clone https://github.com/turbot/steampipe-mod-snowflake-compliance.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
     sudo chown container:container -R /opt/*
 
@@ -125,15 +109,6 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" &&
     steampipe plugin install digitalocean && \
     steampipe plugin install oci 
 
-# WORKDIR /opt/steampipe-mod-aws-well-architected
-# RUN steampipe mod install
-
-# WORKDIR /opt/steampipe-mod-aws-top-10
-# RUN steampipe mod install
-
-# WORKDIR /opt/steampipe-mod-snowflake-compliance
-# RUN steampipe mod install
-
 # Build Powerpipe
 RUN sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)"
 WORKDIR /opt/Powerpipe
@@ -146,11 +121,21 @@ RUN powerpipe mod update
 # Prepare Prowler Environment - pre-reqs will be brought down at launch
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
-RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip # && venv/bin/pip install --no-cache-dir "prowler"
+# fix for prowler where support is missing for new python versions 
+# https://github.com/SethBodine/audit-tools/issues/44  (blows the image out by 1GB)
+# RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip 
+RUN cd /tmp && sudo wget https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz && tar -zxvf Python-3.12.11.tgz && cd Python-3.12.11 && ./configure; \
+    make; sudo make install
+RUN python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip 
 
 # Build semgrep
 WORKDIR /opt/semgrep
 COPY ./semgrep.sh .
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip
+
+# Build checkov
+WORKDIR /opt/checkov
+COPY ./checkov.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip
 
 # Install trivy (tfsec replacement)
@@ -163,10 +148,14 @@ ENV PATH="$PATH:/home/container/.kubescape/bin"
 # Install grype
 RUN sudo bash -c "curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin"
 
+# Install syft
+RUN sudo bash -c "curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin"
+
 # Grab compiled bins from golang build
 COPY --from=gobuild /usr/bin/trufflehog /usr/bin/trufflehog
 COPY --from=gobuild /usr/bin/AzureHound /usr/bin/AzureHound
 COPY --from=gobuild /usr/bin/poutine /usr/bin/poutine
+COPY --from=gobuild /usr/bin/kube-bench /usr/bin/kube-bench
 COPY --from=gobuild /usr/bin/dockerspy /usr/bin/dockerspy
 COPY --from=gobuild /opt/DockerSpy/src/ /etc/dockerspy
 COPY --from=awscli /usr/local/aws-cli/ /usr/local/aws-cli/

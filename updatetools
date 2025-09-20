@@ -50,6 +50,11 @@ sudo curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh 
 sudo sed -i '/grype/d' /etc/motd_updates 
 echo "\n** Update Tools ** grype now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
+echo "Updating syft" >>${LOGFILE}
+sudo curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin >>${LOGFILE}
+sudo sed -i '/syft/d' /etc/motd_updates 
+echo "\n** Update Tools ** syft now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 echo "\n** Update Tools ** /opt is now up to date - all tools are now installed.\n" > /proc/$(pidof /bin/bash)/fd/0

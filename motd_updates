@@ -7,7 +7,8 @@ The below applications may not be fully installed or ready for use until the con
 - scoutsuite 
 - kubeaudit
 - grype
+- syft
 
 ----
-Note: trufflehog, trivy, AzureHound, poutine, dockerspy, aws-cli will ONLY be updated when the container image is rebuilt.
+Note: trufflehog, trivy, AzureHound, poutine, dockerspy, kube-bench, and aws-cli will ONLY be updated when the container image is rebuilt.
 ----
