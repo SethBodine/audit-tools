@@ -29,6 +29,17 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 10
 
+      - name: Check disk usage - Pre
+        run: df -h
+
+      - name: Delete huge unnecessary tools folder
+        run: |
+          rm -rf /opt/hostedtoolcache
+          find . -maxdepth 1 -mindepth 1 '!' -path ./containerd '!' -path ./actionarchivecache '!' -path ./runner '!' -path ./runner-cache -exec rm -rf '{}' ';'
+
+      - name: Check disk usage - Post
+        run: df -h
+
       - name: Checkout repository
         uses: actions/checkout@v5
 
@@ -72,17 +83,6 @@ jobs:
             org.opencontainers.image.authors=${{ github.actor }}
             org.opencontainers.image.trigger=${{ github.event_name }}
             org.opencontainers.image.commit.message=${{ github.event.head_commit.message }}
-
-      - name: Check disk usage - Pre
-        run: df -h
-
-      - name: Delete huge unnecessary tools folder
-        run: |
-          rm -rf /opt/hostedtoolcache
-          find . -maxdepth 1 -mindepth 1 '!' -path ./containerd '!' -path ./actionarchivecache '!' -path ./runner '!' -path ./runner-cache -exec rm -rf '{}' ';'
-
-      - name: Check disk usage - Post
-        run: df -h
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
