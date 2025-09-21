@@ -4,6 +4,7 @@ This is purely a container image that brings together several tools to simplify 
 ## Recent Changes
 ### Known Issues
 - prowler doesn't support Python 3.13 yet, so python 3.12 is built during runtime - not ideal - looking for a more suitable workaround.
+- steampipe mods are also blowing out the container image size - I've moved the module installs to runtime for the time being.
 
 ### Resolved Issues
 - Fixed a few issues - including prowler not supporting python 3.13 

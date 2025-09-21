@@ -39,7 +39,30 @@ echo "\n** Update Tools ** prowler now up to date.\n" > /proc/$(pidof /bin/bash)
 
 echo "Updating Steampipe" >>${LOGFILE}
 sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" >>${LOGFILE}
-steampipe plugin update --all >>${LOGFILE} 
+steampipe plugin install aws >>${LOGFILE}
+steampipe plugin install awscfn >>${LOGFILE}
+steampipe plugin install azure >>${LOGFILE}
+steampipe plugin install azuread >>${LOGFILE}
+steampipe plugin install gcp >>${LOGFILE}
+steampipe plugin install googledirectory >>${LOGFILE}
+steampipe plugin install googleworkspace >>${LOGFILE}
+steampipe plugin install net >>${LOGFILE}
+steampipe plugin install kubernetes >>${LOGFILE}
+steampipe plugin install github >>${LOGFILE}
+steampipe plugin install terraform >>${LOGFILE}
+steampipe plugin install digitalocean >>${LOGFILE}
+steampipe plugin install microsoft365 >>${LOGFILE}
+steampipe plugin install snowflake >>${LOGFILE}
+steampipe plugin install openai >>${LOGFILE}
+steampipe plugin install crtsh >>${LOGFILE}
+steampipe plugin install azuredevops >>${LOGFILE}
+steampipe plugin install mongodbatlas >>${LOGFILE}
+steampipe plugin install okta >>${LOGFILE}
+steampipe plugin install alicloud >>${LOGFILE}
+steampipe plugin install digitalocean >>${LOGFILE}
+steampipe plugin install oci >>${LOGFILE}
+
+# steampipe plugin update --all >>${LOGFILE} 
 
 echo "Updating Powerpipe" >>${LOGFILE}
 sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)" >>${LOGFILE}

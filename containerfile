@@ -105,29 +105,29 @@ WORKDIR /opt/ScoutSuite/
 COPY ./scoutsuite.sh .
 
 # Build Steampipe 
-RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" && \
-    steampipe plugin install aws && \
-    steampipe plugin install awscfn && \
-    steampipe plugin install azure && \
-    steampipe plugin install azuread && \
-    steampipe plugin install gcp && \
-    steampipe plugin install googledirectory && \
-    steampipe plugin install googleworkspace && \
-    steampipe plugin install net && \
-    steampipe plugin install kubernetes && \
-    steampipe plugin install github && \
-    steampipe plugin install terraform && \
-    steampipe plugin install digitalocean && \
-    steampipe plugin install microsoft365 && \
-    steampipe plugin install snowflake && \
-    steampipe plugin install openai && \
-    steampipe plugin install crtsh && \
-    steampipe plugin install azuredevops && \
-    steampipe plugin install mongodbatlas && \
-    steampipe plugin install okta && \
-    steampipe plugin install alicloud && \
-    steampipe plugin install digitalocean && \
-    steampipe plugin install oci 
+RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" # && \
+#     steampipe plugin install aws && \
+#     steampipe plugin install awscfn && \
+#     steampipe plugin install azure && \
+#     steampipe plugin install azuread && \
+#     steampipe plugin install gcp && \
+#     steampipe plugin install googledirectory && \
+#     steampipe plugin install googleworkspace && \
+#     steampipe plugin install net && \
+#     steampipe plugin install kubernetes && \
+#     steampipe plugin install github && \
+#     steampipe plugin install terraform && \
+#     steampipe plugin install digitalocean && \
+#     steampipe plugin install microsoft365 && \
+#     steampipe plugin install snowflake && \
+#     steampipe plugin install openai && \
+#     steampipe plugin install crtsh && \
+#     steampipe plugin install azuredevops && \
+#     steampipe plugin install mongodbatlas && \
+#     steampipe plugin install okta && \
+#     steampipe plugin install alicloud && \
+#     steampipe plugin install digitalocean && \
+#     steampipe plugin install oci 
 
 # Build Powerpipe
 RUN sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)"
