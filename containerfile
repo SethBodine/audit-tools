@@ -38,6 +38,24 @@ FROM amazon/aws-cli:latest AS awscli
 #Aquasec trivy
 FROM aquasec/trivy:latest AS trivy
 
+# "workaround" for prowler - attempt #3
+# Stage 1: Build Python
+FROM debian:bookworm-slim AS python-builder
+RUN apt-get update && apt-get install -y \
+    build-essential wget libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev curl \
+    libncursesw5-dev xz-utils tk-dev libxml2-dev \
+    libxmlsec1-dev libffi-dev liblzma-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+RUN wget https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz \
+    && tar -zxvf Python-3.12.11.tgz \ 
+    && cd Python-3.12.11 \
+    && ./configure --enable-optimizations --with-lto --prefix=/usr/local \
+    && make -j$(nproc) \
+    && make install
+
 # Ubuntu Latest
 FROM ubuntu:rolling AS mainbuild
 
@@ -54,7 +72,7 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make google-cloud-cli bat fd-find ripgrep du-dust \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl pkg-config libffi-dev && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl libxmlsec1t64 libxslt1.1 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Added pkg-config libffi-dev for prowler fix
@@ -121,12 +139,16 @@ RUN powerpipe mod update
 # Prepare Prowler Environment - pre-reqs will be brought down at launch
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
+COPY --from=python-builder /usr/local/bin/python3.12 /usr/local/bin/
+COPY --from=python-builder /usr/local/bin/pip3.12 /usr/local/bin/
+COPY --from=python-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
+COPY --from=python-builder /usr/local/lib/libpython3.12* /usr/local/lib/
 # fix for prowler where support is missing for new python versions 
 # https://github.com/SethBodine/audit-tools/issues/44  (blows the image out by 1GB)
 # RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip 
-RUN cd /tmp && sudo wget https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz && tar -zxvf Python-3.12.11.tgz && cd Python-3.12.11 && ./configure; \
-    make; sudo make install
-RUN python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip 
+# RUN cd /tmp && sudo wget https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz && tar -zxvf Python-3.12.11.tgz && cd Python-3.12.11 && ./configure; \
+#     make; sudo make install
+# RUN python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip 
 
 # Build semgrep
 WORKDIR /opt/semgrep
