@@ -35,7 +35,7 @@ jobs:
       - name: Delete huge unnecessary tools folder
         run: |
           rm -rf /opt/hostedtoolcache
-          find . -maxdepth 1 -mindepth 1 '!' -path ./containerd '!' -path ./actionarchivecache '!' -path ./runner '!' -path ./runner-cache -exec rm -rf '{}' ';'
+          # find . -maxdepth 1 -mindepth 1 '!' -path ./containerd '!' -path ./actionarchivecache '!' -path ./runner '!' -path ./runner-cache -exec rm -rf '{}' ';'
 
       - name: Check disk usage - Post
         run: df -h
