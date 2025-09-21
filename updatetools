@@ -24,6 +24,19 @@ echo "Updating pip packages" >>${LOGFILE}
 sudo pip install pip pynacl azure-cli aws-list-all --upgrade --root-user-action=ignore
 echo "\n** Update Tools ** azure-cli now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
+echo "Temporary Fix for prowler bug" >>${LOGFILE}
+cd /tmp 
+sudo wget https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz 
+tar -zxvf Python-3.12.11.tgz 
+cd Python-3.12.11 
+./configure; \
+make; 
+sudo make install
+cd /opt/prowler/
+python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} 
+sudo sed -i '/prowler/d' /etc/motd_updates 
+echo "\n** Update Tools ** prowler now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Updating Steampipe" >>${LOGFILE}
 sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" >>${LOGFILE}
 steampipe plugin update --all >>${LOGFILE} 
@@ -33,12 +46,6 @@ sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)" >>${LO
 cd /opt/Powerpipe
 powerpipe mod update
 echo "\n** Update Tools ** Steampipe and Powerpipe now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
-
-echo "Temporary Fix for prowler bug" >>${LOGFILE}
-cd /opt/prowler/
-python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} 
-sudo sed -i '/prowler/d' /etc/motd_updates 
-echo "\n** Update Tools ** prowler now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
 echo "Temporary Fix for scoutsuite blowout at build" >>${LOGFILE}
 cd /opt/ScoutSuite

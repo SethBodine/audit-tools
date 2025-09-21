@@ -38,23 +38,25 @@ FROM amazon/aws-cli:latest AS awscli
 #Aquasec trivy
 FROM aquasec/trivy:latest AS trivy
 
+# disabling this workflow as it blows out the build
 # "workaround" for prowler - attempt #3
 # Stage 1: Build Python
-FROM debian:bookworm-slim AS python-builder
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential wget libssl-dev zlib1g-dev \
-    libbz2-dev libreadline-dev libsqlite3-dev curl \
-    libncursesw5-dev xz-utils tk-dev libxml2-dev \
-    libxmlsec1-dev libffi-dev liblzma-dev \
-    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /tmp
-RUN wget -q https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz \
-    && tar -zxvf Python-3.12.11.tgz \ 
-    && cd Python-3.12.11 \
-    && ./configure --enable-optimizations --with-lto --prefix=/usr/local \
-    && make -j$(nproc) \
-    && make install
+# FROM debian:bookworm-slim AS python-builder
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     build-essential wget libssl-dev zlib1g-dev \
+#     libbz2-dev libreadline-dev libsqlite3-dev curl \
+#     libncursesw5-dev xz-utils tk-dev libxml2-dev \
+#     libxmlsec1-dev libffi-dev liblzma-dev \
+#     && rm -rf /var/lib/apt/lists/*
+
+# WORKDIR /tmp
+# RUN wget -q https://www.python.org/ftp/python/3.12.11/Python-3.12.11.tgz \
+#     && tar -zxvf Python-3.12.11.tgz \ 
+#     && cd Python-3.12.11 \
+#     && ./configure --enable-optimizations --with-lto --prefix=/usr/local \
+#     && make -j$(nproc) \
+#     && make install
 
 # Ubuntu Latest
 FROM ubuntu:rolling AS mainbuild
@@ -139,10 +141,12 @@ RUN powerpipe mod update
 # Prepare Prowler Environment - pre-reqs will be brought down at launch
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
-COPY --from=python-builder /usr/local/bin/python3.12 /usr/local/bin/
-COPY --from=python-builder /usr/local/bin/pip3.12 /usr/local/bin/
-COPY --from=python-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
-COPY --from=python-builder /usr/local/lib/libpython3.12* /usr/local/lib/
+# disabling this as part of the earlier change
+# COPY --from=python-builder /usr/local/bin/python3.12 /usr/local/bin/
+# COPY --from=python-builder /usr/local/bin/pip3.12 /usr/local/bin/
+# COPY --from=python-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
+# COPY --from=python-builder /usr/local/lib/libpython3.12* /usr/local/lib/
+
 # fix for prowler where support is missing for new python versions 
 # https://github.com/SethBodine/audit-tools/issues/44  (blows the image out by 1GB)
 # RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip 
