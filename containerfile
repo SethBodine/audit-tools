@@ -136,7 +136,7 @@ WORKDIR /opt/Powerpipe
 # pre-work for the mod.pp file includes the following mods
 
 COPY ./mod.pp .
-RUN powerpipe mod update
+# RUN powerpipe mod update
     
 # Prepare Prowler Environment - pre-reqs will be brought down at launch
 WORKDIR /opt/prowler
