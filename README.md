@@ -1,7 +1,21 @@
 ## What is this for?
 This is purely a container image that brings together several tools to simplify the auditing of several cloud services.
 
-### Contains...
+## Recent Changes
+### Known Issues
+- prowler doesn't support Python 3.13 yet, so python 3.12 is built during runtime - not ideal - looking for a more suitable workaround.
+
+### Resolved Issues
+- Fixed a few issues - including prowler not supporting python 3.13 
+- Wound back some of my workflows - resulted in messiness with branches (kiss method)
+- snyk actions should be working again - this broke due to recent github change to how it handles SARIF files.
+
+### New Tools
+- syft
+- kube-bench
+- checkov
+
+## Tools
 Currently serveral packages are configured (small list below), check out the [wiki](https://github.com/SethBodine/docker/wiki/) for additional details
 
 | Tool | CLI command | GitHub Commit Age | Wiki URL |
@@ -27,12 +41,3 @@ Currently serveral packages are configured (small list below), check out the [wi
 | syft | `syft` | ![](https://img.shields.io/github/last-commit/anchore/syft) | [Using syft](https://github.com/SethBodine/docker/wiki/Using-syft) |
 | checkov | `/opt/semgrep/checkov.sh && checkov` | ![](https://img.shields.io/github/last-commit/bridgecrewio/checkov) | [Using checkov](https://github.com/SethBodine/docker/wiki/Using-checkov) |
 
-## Recent Changes
-- Fixed a few issues - including prowler not supporting python 3.13 
-- Wound back some of my workflows - resulted in messiness
-
-### Added Tools
-The following new tools have been added
-- syft
-- kube-bench
-- checkov
