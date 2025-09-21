@@ -57,8 +57,22 @@ jobs:
     - name: Post process snyk sarif file  
       run: |
         sed -i 's/"security-severity": "null"/"security-severity": "0"/g' snyk.sarif
-    - name: Fix SARIF file # added section
-      run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
+    # - name: Fix SARIF file # added section
+    #   run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
+
+   - name: Flatten SARIF runs
+      run: |
+        jq -c '{
+          "version": .version,
+          "runs": [
+            reduce .runs[] as $r (
+              {"tool": $r.tool, "results": [], "artifacts": [], "invocations": []};
+              .results += ($r.results // []) |
+              .artifacts += ($r.artifacts // []) |
+              .invocations += ($r.invocations // [])
+            )
+          ]
+        }' snyk.sarif > onlysnyk.sarif
 
     - name: Upload SARIF as artifact 
       uses: actions/upload-artifact@v4
