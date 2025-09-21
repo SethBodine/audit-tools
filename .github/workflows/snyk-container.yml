@@ -67,15 +67,13 @@ jobs:
           "runs": [
             reduce .runs[] as $r (
               {"tool": null, "results": [], "artifacts": [], "invocations": []};
-              {
-                "tool": (if .tool == null then $r.tool else .tool end),
-                "results": .results + ($r.results // []),
-                "artifacts": .artifacts + ($r.artifacts // []),
-                "invocations": .invocations + ($r.invocations // [])
-              }
+              .tool = (if .tool == null then $r.tool else .tool end)
+              | .results += ($r.results // [])
+              | .artifacts += ($r.artifacts // [])
+              | .invocations += ($r.invocations // [])
             )
           ]
-        }' snyk.sarif > onlysnyk.sarif
+        }' snyk.sarif > onlysnyk.sarif    
 
     - name: Debug flattened SARIF
       run: |
