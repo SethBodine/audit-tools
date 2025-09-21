@@ -61,18 +61,29 @@ jobs:
     #   run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
 
     - name: Flatten SARIF runs
+    - name: Flatten SARIF runs
       run: |
         jq -c '{
           "version": .version,
           "runs": [
             reduce .runs[] as $r (
-              {"tool": $r.tool, "results": [], "artifacts": [], "invocations": []};
-              .results += ($r.results // []) |
-              .artifacts += ($r.artifacts // []) |
-              .invocations += ($r.invocations // [])
+              {"tool": null, "results": [], "artifacts": [], "invocations": []};
+              {
+                "tool": (if .tool == null then $r.tool else .tool end),
+                "results": .results + ($r.results // []),
+                "artifacts": .artifacts + ($r.artifacts // []),
+                "invocations": .invocations + ($r.invocations // [])
+              }
             )
           ]
         }' snyk.sarif > onlysnyk.sarif
+
+    - name: Debug flattened SARIF
+      run: |
+        echo "Number of runs in onlysnyk.sarif:"
+        jq '.runs | length' onlysnyk.sarif
+        echo "Preview of first 30 lines:"
+        head -30 onlysnyk.sarif
 
     - name: Upload SARIF as artifact 
       uses: actions/upload-artifact@v4
