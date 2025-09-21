@@ -60,7 +60,7 @@ jobs:
     # - name: Fix SARIF file # added section
     #   run: jq -c '.runs |= map(select((.results | length) > 0))' <snyk.sarif >onlysnyk.sarif
 
-   - name: Flatten SARIF runs
+    - name: Flatten SARIF runs
       run: |
         jq -c '{
           "version": .version,
