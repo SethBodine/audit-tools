@@ -32,13 +32,13 @@ jobs:
       - name: Check disk usage - Pre
         run: df -h
 
-      - name: Delete huge unnecessary tools folder
-        run: |
+#      - name: Delete huge unnecessary tools folder
+#        run: |
           # rm -rf /opt/hostedtoolcache
-          find . -maxdepth 1 -mindepth 1 '!' -path ./containerd '!' -path ./actionarchivecache '!' -path ./runner '!' -path ./runner-cache '!' -path ./hostedtoolcache -exec rm -rf '{}' ';'
+#          find . -maxdepth 1 -mindepth 1 '!' -path ./containerd '!' -path ./actionarchivecache '!' -path ./runner '!' -path ./runner-cache '!' -path ./hostedtoolcache -exec rm -rf '{}' ';'
 
-      - name: Check disk usage - Post
-        run: df -h
+#      - name: Check disk usage - Post
+#        run: df -h
 
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -100,3 +100,6 @@ jobs:
             BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+
+      - name: Check disk usage - Post
+        run: df -h
