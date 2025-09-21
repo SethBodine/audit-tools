@@ -21,11 +21,11 @@ Currently serveral packages are configured (small list below), check out the [wi
 | kube-bench | `kube-bench` | ![](https://img.shields.io/github/last-commit/aquasecurity/kube-bench) | [Using kube-bench](https://github.com/SethBodine/docker/wiki/Using-kubei-bench) |
 | semgrep | `. /opt/semgrep/semgrep.sh && semgrep` | ![](https://img.shields.io/github/last-commit/semgrep/semgrep) | [Using semgrep](https://github.com/SethBodine/docker/wiki/Using-semgrep) |
 | dockerspy | `dockerspy` | ![](https://img.shields.io/github/last-commit/UndeadSec/DockerSpy) | [Using dockerspy](https://github.com/SethBodine/docker/wiki/Using-dockerspy) |
-| poutine | `poutine` | ![](https://img.shields.io/github/last-commit/boostsecurityio/poutine) | [Using poutine](https://github.com/SethBodine/docker/wiki/Using_poutine) |
-| aws_list_all | `aws_list_all` | ![](https://img.shields.io/github/last-commit/JohannesEbke/aws_list_all) | [Using aws_list_all](https://github.com/SethBodine/docker/wiki/Using_aws_list_all) |
-| grype | `grype` | ![](https://img.shields.io/github/last-commit/anchore/grype) | [Using grype](https://github.com/SethBodine/docker/wiki/Using_grype) |
-| syft | `syft` | ![](https://img.shields.io/github/last-commit/anchore/syft) | [Using syft](https://github.com/SethBodine/docker/wiki/Using_syft) |
-| checkov | `/opt/semgrep/checkov.sh && checkov` | ![](https://img.shields.io/github/last-commit/bridgecrewio/checkov) | [Using checkov](https://github.com/SethBodine/docker/wiki/Using_checkov) |
+| poutine | `poutine` | ![](https://img.shields.io/github/last-commit/boostsecurityio/poutine) | [Using poutine](https://github.com/SethBodine/docker/wiki/Using-poutine) |
+| aws_list_all | `aws_list_all` | ![](https://img.shields.io/github/last-commit/JohannesEbke/aws_list_all) | [Using aws_list_all](https://github.com/SethBodine/docker/wiki/Using-aws_list_all) |
+| grype | `grype` | ![](https://img.shields.io/github/last-commit/anchore/grype) | [Using grype](https://github.com/SethBodine/docker/wiki/Using-grype) |
+| syft | `syft` | ![](https://img.shields.io/github/last-commit/anchore/syft) | [Using syft](https://github.com/SethBodine/docker/wiki/Using-syft) |
+| checkov | `/opt/semgrep/checkov.sh && checkov` | ![](https://img.shields.io/github/last-commit/bridgecrewio/checkov) | [Using checkov](https://github.com/SethBodine/docker/wiki/Using-checkov) |
 
 ## Recent Changes
 - Fixed a few issues - including prowler not supporting python 3.13 
