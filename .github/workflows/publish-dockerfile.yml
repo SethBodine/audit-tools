@@ -39,13 +39,15 @@ jobs:
       - name: Start disk monitor
         if: always()
         run: |
+          touch disk-usage.log
           ( while true; do
               echo "===== Disk usage $(date) ====="
               df -h /
               du -sh /home/runner/work || true
               sleep 600   # adjust to 3600 for hourly
-            done ) >> disk-usage.log 2>&1 &
+            done ) 2>&1 | tee -a disk-usage.log &
           echo $! > disk-monitor.pid
+          echo "Disk monitor started with PID $(cat disk-monitor.pid)"
 
 #      - name: Delete huge unnecessary tools folder
 #        run: |
@@ -123,9 +125,22 @@ jobs:
       - name: Stop disk monitor
         if: always()
         run: |
-          kill $(cat disk-monitor.pid) || true
-          sleep 2
-          cat disk-usage.log
+          if [ -f disk-monitor.pid ]; then
+             PID=$(cat disk-monitor.pid)
+             echo "Stopping disk monitor PID $PID"
+             kill $PID || true
+             sleep 2
+           else
+             echo "No disk-monitor.pid file found  monitor may not have started."
+           fi
+
+           if [ -s disk-usage.log ]; then
+             echo "Disk usage log:"
+             cat disk-usage.log
+           else
+             echo "disk-usage.log is missing or empty - Creating empty file."
+           fi
+
 
       - name: Upload monitoring artifacts
         if: always()
@@ -137,4 +152,5 @@ jobs:
             fs-tree-start.txt
             fs-tree-end.txt
             tree-errors.log 
+          if-no-files-found: ignore
           retention-days: 7
