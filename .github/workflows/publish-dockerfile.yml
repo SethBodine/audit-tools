@@ -29,13 +29,17 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 10
 
-      - name: Install tree
-        run: sudo apt-get update && sudo apt-get install -y tree
+      - name: Install tree and dust
+        run: sudo apt-get update && sudo apt-get install -y tree dust
 
-      - name: Capture initial filesystem tree
-        run: tree -a -L 2 / > fs-tree-start.txt
+      - name: Capture initial filesystem tree and dust
+        if: always()
+        run: |
+          tree -a -L 2 -I 'proc|sys|dev|run' / > fs-tree-start.txt
+          dust -d 2 / > dust-start.txt || true
 
       - name: Start disk monitor
+        if: always()
         run: |
           ( while true; do
               echo "===== Disk usage $(date) ====="
@@ -114,9 +118,11 @@ jobs:
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
-      - name: Capture final filesystem tree
+      - name: Capture final filesystem tree and dust
         if: always()
-        run: tree -a -L 2 / > fs-tree-end.txt
+        run: |
+          tree -a -L 2 -I 'proc|sys|dev|run' / > fs-tree-end.txt
+          dust -d 2 / > dust-end.txt || true
 
       - name: Stop disk monitor
         if: always()
@@ -134,4 +140,6 @@ jobs:
             disk-usage.log
             fs-tree-start.txt
             fs-tree-end.txt
+            dust-start.txt
+            dust-end.txt
           retention-days: 7
