@@ -36,18 +36,22 @@ jobs:
         if: always()
         run: tree -a -L 2 -I 'proc|sys|dev|run' / > fs-tree-start.txt 2> tree-errors.log || true
 
-      - name: Start disk monitor
+      - name: Upload initial tree snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: fs-tree-start
+          path: |
+            fs-tree-start.txt
+            tree-errors.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Disk sizes start
         if: always()
         run: |
-          touch disk-usage.log
-          ( while true; do
               echo "===== Disk usage $(date) ====="
               df -h /
               du -sh /home/runner/work || true
-              sleep 600   # adjust to 3600 for hourly
-            done ) 2>&1 | tee -a disk-usage.log &
-          echo $! > disk-monitor.pid
-          echo "Disk monitor started with PID $(cat disk-monitor.pid)"
 
 #      - name: Delete huge unnecessary tools folder
 #        run: |
@@ -122,35 +126,52 @@ jobs:
         if: always()
         run: tree -a -L 2 -I 'proc|sys|dev|run' / > fs-tree-end.txt 2>> tree-errors.log || true
 
-      - name: Stop disk monitor
+      - name: Disk sizes end
         if: always()
         run: |
-          if [ -f disk-monitor.pid ]; then
-             PID=$(cat disk-monitor.pid)
-             echo "Stopping disk monitor PID $PID"
-             kill $PID || true
-             sleep 2
-           else
-             echo "No disk-monitor.pid file found  monitor may not have started."
-           fi
+              echo "===== Disk usage $(date) ====="
+              df -h /
+              du -sh /home/runner/work || true
 
-           if [ -s disk-usage.log ]; then
-             echo "Disk usage log:"
-             cat disk-usage.log
-           else
-             echo "disk-usage.log is missing or empty - Creating empty file."
-           fi
-
-
-      - name: Upload monitoring artifacts
-        if: always()
+      - name: Upload final tree snapshot
         uses: actions/upload-artifact@v4
         with:
-          name: disk-monitor-${{ matrix.arch }}
+          name: fs-tree-end
           path: |
-            disk-usage.log
-            fs-tree-start.txt
             fs-tree-end.txt
-            tree-errors.log 
+            tree-errors.log
           if-no-files-found: ignore
           retention-days: 7
+
+      # - name: Stop disk monitor
+      #   if: always()
+      #   run: |
+      #     if [ -f disk-monitor.pid ]; then
+      #        PID=$(cat disk-monitor.pid)
+      #        echo "Stopping disk monitor PID $PID"
+      #        kill $PID || true
+      #        sleep 2
+      #      else
+      #        echo "No disk-monitor.pid file found  monitor may not have started."
+      #      fi
+      #
+      #      if [ -s disk-usage.log ]; then
+      #        echo "Disk usage log:"
+      #        cat disk-usage.log
+      #      else
+      #        echo "disk-usage.log is missing or empty - Creating empty file."
+      #      fi
+
+
+#       - name: Upload monitoring artifacts
+#         if: always()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: disk-monitor-${{ matrix.arch }}
+#           path: |
+#             disk-usage.log
+#             fs-tree-start.txt
+#             fs-tree-end.txt
+#             tree-errors.log 
+#           if-no-files-found: ignore
+#           retention-days: 7
