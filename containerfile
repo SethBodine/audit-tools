@@ -74,7 +74,7 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make google-cloud-cli bat fd-find ripgrep du-dust \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl libxmlsec1t64 libxslt1.1 && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl libxmlsec1t64 libxslt1.1 pkg-config libffi-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Added pkg-config libffi-dev for prowler fix
