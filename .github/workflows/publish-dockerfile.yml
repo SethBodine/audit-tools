@@ -29,8 +29,21 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 10
 
-      - name: Check disk usage - Pre
-        run: df -h
+      - name: Install tree
+        run: sudo apt-get update && sudo apt-get install -y tree
+
+      - name: Capture initial filesystem tree
+        run: tree -a -L 2 / > fs-tree-start.txt
+
+      - name: Start disk monitor
+        run: |
+          ( while true; do
+              echo "===== Disk usage $(date) ====="
+              df -h /
+              du -sh /home/runner/work || true
+              sleep 600   # adjust to 3600 for hourly
+            done ) >> disk-usage.log 2>&1 &
+          echo $! > disk-monitor.pid
 
 #      - name: Delete huge unnecessary tools folder
 #        run: |
@@ -101,5 +114,24 @@ jobs:
             VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
             REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
 
-      - name: Check disk usage - Post
-        run: df -h
+      - name: Capture final filesystem tree
+        if: always()
+        run: tree -a -L 2 / > fs-tree-end.txt
+
+      - name: Stop disk monitor
+        if: always()
+        run: |
+          kill $(cat disk-monitor.pid) || true
+          sleep 2
+          cat disk-usage.log
+
+      - name: Upload monitoring artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: disk-monitor-${{ matrix.arch }}
+          path: |
+            disk-usage.log
+            fs-tree-start.txt
+            fs-tree-end.txt
+          retention-days: 7
