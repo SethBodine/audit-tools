@@ -105,7 +105,8 @@ WORKDIR /opt/ScoutSuite/
 COPY ./scoutsuite.sh .
 
 # Build Steampipe 
-RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" # && \
+RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" 
+# && \
 #     steampipe plugin install aws && \
 #     steampipe plugin install awscfn && \
 #     steampipe plugin install azure && \
