@@ -11,26 +11,32 @@ RUN git clone https://github.com/BloodHoundAD/AzureHound && \
     git clone https://github.com/boostsecurityio/poutine && \
     git clone https://github.com/aquasecurity/kube-bench.git
 
-# UMMM maybe not Build Trufflehog docker build must now include --build-arg TARGETARCH=${{ matrix.arch }}
-WORKDIR /opt/trufflehog
-RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
+# this is not ideal - but will group 
+RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -C /opt/trufflehog -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog" && \
+    bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -C /opt/AzureHound -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound" && \
+    bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -C /opt/DockerSpy -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/dockerspy" && mkdir -p /etc/dockerspy && \
+    bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -C /opt/poutine -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/poutine" && \
+    bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -C /opt/kube-bench -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kube-bench" 
+
+# WORKDIR /opt/trufflehog
+# RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog"
 
 # Build AzureHound
-WORKDIR /opt/AzureHound
-RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
+# WORKDIR /opt/AzureHound
+# RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound"
 
 # Build DockerSpy
-WORKDIR /etc/dockerspy
-WORKDIR /opt/DockerSpy
-RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/dockerspy"
+# WORKDIR /etc/dockerspy
+# WORKDIR /opt/DockerSpy
+# RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/dockerspy"
 
 # Build poutine
-WORKDIR /opt/poutine
-RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/poutine"
+# WORKDIR /opt/poutine
+# RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/poutine"
 
 # build kube-bench
-WORKDIR /opt/kube-bench
-RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kube-bench"
+# WORKDIR /opt/kube-bench
+# RUN bash -c "GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) go build -v -a -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kube-bench"
 
 #AWS CLI
 FROM amazon/aws-cli:latest AS awscli
