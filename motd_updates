@@ -5,7 +5,6 @@ Updates are installing - please check /tmp for updatetools.*.log files to track 
 The below applications may not be fully installed or ready for use until the container initisation script /sbin/updatetools completes.
 
 - scoutsuite 
-- prowler
 - kubeaudit
 - grype
 - syft
