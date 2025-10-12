@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository (for SARIF upload context)
-      - uses: actions/checkout@v5
+        uses: actions/checkout@v5
 
       - name: Install jq
         run: sudo apt-get --purge -y install jq # Possible fix
