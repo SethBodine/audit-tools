@@ -47,6 +47,12 @@ jobs:
 #      - name: Build a Docker image
 #        run: docker build -t sethbodine/audit-tools -f containerfile .
 
+      - name: Normalize image name
+        id: image
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "image=ghcr.io/${OWNER}/audit-tools:latest" >> $GITHUB_OUTPUT
+
       - name: Run Snyk to check Docker image for vulnerabilities
         # Snyk can be used to break the build when it detects vulnerabilities.
         # In this case we want to upload the issues to GitHub Code Scanning
@@ -58,8 +64,9 @@ jobs:
           # or you can signup for free at https://snyk.io/login
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ghcr.io/${{ github.repository_owner }}-lower/audit-tools:latest
+#          image: ghcr.io/${{ github.repository_owner }}-lower/audit-tools:latest
 #          image: ghcr.io/${{ github.repository_owner }}/audit-tools:latest
+          image: ${{ steps.image.outputs.image }}
           args: --file=containerfile
         # Replace any "null" security severity values with 0. The null value is used in the case
         # of license-related findings, which do not do not indicate a security vulnerability.
