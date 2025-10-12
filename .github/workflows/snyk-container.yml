@@ -58,7 +58,7 @@ jobs:
           # or you can signup for free at https://snyk.io/login
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ghcr.io/${{ github.repository_owner,, }}/audit-tools:latest
+          image: ghcr.io/${{ github.repository_owner }}-lower/audit-tools:latest
 #          image: ghcr.io/${{ github.repository_owner }}/audit-tools:latest
           args: --file=containerfile
         # Replace any "null" security severity values with 0. The null value is used in the case
