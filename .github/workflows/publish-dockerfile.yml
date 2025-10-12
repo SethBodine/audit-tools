@@ -4,6 +4,8 @@ on:
   push:
     branches:
      - 'main'
+    paths-ignore:
+      - '.github/workflows/*.yml'
   schedule:
     - cron:  '0 0 * * 1'    # Force Build Weekly
   workflow_dispatch:
