@@ -94,5 +94,11 @@ mod "local" {
     mod "github.com/turbot/steampipe-mod-oci-thrifty" {
       version = "*"
     }
+    mod "github.com/turbot/tailpipe-mod-github-security-log-detections" {
+      version = "*"
+    }
+    mod "github.com/turbot/tailpipe-mod-github-audit-log-detections" {
+      version = "*"
+    }
   }
 }
