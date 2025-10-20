@@ -78,6 +78,11 @@ sudo curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin >>
 sudo sed -i '/syft/d' /etc/motd_updates 
 echo "\n** Update Tools ** syft now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
+echo "Updating fx" >>${LOGFILE}
+sudo curl https://fx.wtf/install.sh | sh >>${LOGFILE}
+sudo sed -i '/fx/d' /etc/motd_updates 
+echo "\n** Update Tools ** fx now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 echo "\n** Update Tools ** /opt is now up to date - all tools are now installed.\n" > /proc/$(pidof /bin/bash)/fd/0
