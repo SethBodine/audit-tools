@@ -82,6 +82,9 @@ $CONTAINER_ENGINE exec -it --user container "$CONTAINER_NAME" /bin/bash
 log "Stopping container '$CONTAINER_NAME'..."
 $CONTAINER_ENGINE stop "$CONTAINER_NAME" >/dev/null
 
+log "Removing container '$CONTAINER_NAME'..."
+$CONTAINER_ENGINE rm "$CONTAINER_NAME" >/dev/null
+
 # --- Clean up old image versions ---
 log "Cleaning up older unused versions of '$IMAGE'..."
 CURRENT_ID=$($CONTAINER_ENGINE inspect --format '{{.Id}}' "$IMAGE" 2>/dev/null)
