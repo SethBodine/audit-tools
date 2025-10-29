@@ -19,6 +19,8 @@ on:
     types:
       - completed
   workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'    # Force Scan Daily
 
 permissions:
   contents: read
