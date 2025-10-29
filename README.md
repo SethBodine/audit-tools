@@ -33,7 +33,7 @@ Currently serveral packages are configured (small list below), check out the [wi
 | AzureHound | `AzureHound` | ![](https://img.shields.io/github/last-commit/BloodHoundAD/AzureHound) | [Using AzureHound](https://github.com/SethBodine/docker/wiki/Using-AzureHound)| 
 | trivy | `trivy` | ![](https://img.shields.io/github/last-commit/aquasecurity/trivy) | [Using trivy](https://github.com/SethBodine/docker/wiki/Using-trivy) |
 | kubescape | `kubescape` | ![](https://img.shields.io/github/last-commit/kubescape/kubescape) | [Using kubescape](https://github.com/SethBodine/docker/wiki/Using-kubescape) |
-| kube-bench | `kube-bench` | ![](https://img.shields.io/github/last-commit/aquasecurity/kube-bench) | [Using kube-bench](https://github.com/SethBodine/docker/wiki/Using-kubei-bench) |
+| kube-bench | `kube-bench` | ![](https://img.shields.io/github/last-commit/aquasecurity/kube-bench) | [Using kube-bench](https://github.com/SethBodine/docker/wiki/Using-kube-bench) |
 | semgrep | `. /opt/semgrep/semgrep.sh && semgrep` | ![](https://img.shields.io/github/last-commit/semgrep/semgrep) | [Using semgrep](https://github.com/SethBodine/docker/wiki/Using-semgrep) |
 | dockerspy | `dockerspy` | ![](https://img.shields.io/github/last-commit/UndeadSec/DockerSpy) | [Using dockerspy](https://github.com/SethBodine/docker/wiki/Using-dockerspy) |
 | poutine | `poutine` | ![](https://img.shields.io/github/last-commit/boostsecurityio/poutine) | [Using poutine](https://github.com/SethBodine/docker/wiki/Using-poutine) |
