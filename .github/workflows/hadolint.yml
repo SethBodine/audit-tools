@@ -13,8 +13,9 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - '.github/workflows/*.yml'
+      - 'README.md'
   schedule:
-    - cron: '17 17 * * 6'
+    - cron: '0 0 * * *'
 
 permissions:
   contents: read
