@@ -29,7 +29,7 @@ FROM amazon/aws-cli:latest AS awscli
 FROM aquasec/trivy:latest AS trivy
 
 # Python 3.12 workaround for prowler
-FROM python:3.12-slim AS python-builder
+FROM python:3.12 AS python-builder
 
 # Ubuntu Latest
 FROM ubuntu:rolling AS mainbuild
