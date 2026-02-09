@@ -119,6 +119,7 @@ COPY --from=python-builder /usr/local/bin/python3.12 /usr/local/bin/
 COPY --from=python-builder /usr/local/bin/pip3.12 /usr/local/bin/
 COPY --from=python-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=python-builder /usr/local/lib/libpython3.12* /usr/local/lib/
+COPY --from=python-builder /usr/local/include/python3.12 /usr/local/include/python3.12
 RUN python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip 
 
 # Build semgrep
