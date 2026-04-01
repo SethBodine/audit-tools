@@ -84,7 +84,7 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 | Prowler | `. /opt/prowler/prowler.sh && prowler` | ![](https://img.shields.io/github/last-commit/prowler-cloud/prowler) | [Using Prowler](https://github.com/SethBodine/audit-tools/wiki/Using-Prowler) |
 | Steampipe | `steampipe` | ![](https://img.shields.io/github/last-commit/turbot/steampipe) | [Using Steampipe](https://github.com/SethBodine/audit-tools/wiki/Using-Steampipe) |
 | Powerpipe | `powerpipe` | ![](https://img.shields.io/github/last-commit/turbot/powerpipe) | [Using Powerpipe](https://github.com/SethBodine/audit-tools/wiki/Using-Powerpipe) |
-| cazadora | `. /opt/cazadorz/cazadora.sh && python main.py` | ![](https://img.shields.io/github/last-commit/HuskyHacks/cazadora/) | [Using cazadorz](https://github.com/SethBodine/docker/wiki/Using-cazadorz) |
+| cazadora | `. /opt/cazadorz/cazadora.sh && python main.py` | ![](https://img.shields.io/github/last-commit/HuskyHacks/cazadora) | [Using cazadorz](https://github.com/SethBodine/docker/wiki/Using-cazadorz) |
 
 ###  Infrastructure as Code (IaC) Scanning
 
@@ -153,6 +153,7 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 The following tools will be removed in the next release
 
 | Tool | CLI command | Last Commit | Wiki |
+| --- | --- | --- | --- |
 | ScoutSuite | `. /opt/ScoutSuite/scoutsuite.sh && scout.py`  stale | ![](https://img.shields.io/github/last-commit/nccgroup/ScoutSuite) | [Using ScoutSuite](https://github.com/SethBodine/audit-tools/wiki/Using-ScoutSuite) |
 | aws_list_all | `aws_list_all` | ![](https://img.shields.io/github/last-commit/JohannesEbke/aws_list_all) | [Using aws_list_all](https://github.com/SethBodine/audit-tools/wiki/Using-aws_list_all) |
 
