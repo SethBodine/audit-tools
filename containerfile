@@ -26,7 +26,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 FROM amazon/aws-cli:latest AS awscli
 
 #Aquasec trivy
-FROM aquasec/trivy:latest AS trivy
+# FROM aquasec/trivy:latest AS trivy # latest tag removed from dockerhub
+FROM aquasec/trivy:0.69.3 AS trivy
 
 # Python 3.12 workaround for prowler
 FROM python:3.12 AS python-builder
@@ -38,19 +39,25 @@ LABEL "audit-tools"="" "org.opencontainers.image.documentation"="https://github.
 
 # Fixing Time and Date NZDT, 
 ENV TZ="Pacific/Auckland"
-# Add Google Repos and add fix for ScoutSuite
+# Add Google and charm Repos and add fix for ScoutSuite
 # Install Python, GCP, Git, and other tools, Fixing Time and Date NZDT
 RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \ 
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl gpg lsb-release apt-utils ca-certificates && \
     echo "deb [signed-by=/etc/apt/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/keyrings/cloud.google.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | tee /etc/apt/sources.list.d/charm.list && \
+    curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg && \
     apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata python3 python3-dev \ 
        python3-pip python3-virtualenv git apt-transport-https ca-certificates gnupg jq gnupg sudo make google-cloud-cli bat fd-find ripgrep du-dust jc \
-       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl libxmlsec1-1 libxslt1.1 pkg-config libffi-dev && \
+       libsodium-dev gcc nmap vim perl openssl libssl-dev dnsutils curl wget whois inetutils-ping screen expect-dev dialog less bsdmainutils ssh file unzip sipcalc groff kubectl libxmlsec1-1 libxslt1.1 pkg-config libffi-dev fzf glow && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-
 # Added pkg-config libffi-dev for prowler fix
+
+# deploy wiki payloads
+#  Install the wiki script 
+COPY wiki /usr/local/bin/wiki
+RUN chmod +x /usr/local/bin/wiki
 
 # push motd
 WORKDIR /etc/
@@ -63,6 +70,19 @@ RUN adduser --disabled-password --gecos '' container && adduser container sudo &
 # Change to non-root privilege
 USER container
 
+#  Pre-populate the offline cache at build time 
+#    This bakes the current wiki state into the image layer.
+#    Users get instant offline access; 'wiki --update' refreshes it at runtime.
+ENV WIKI_REPO="SethBodine/audit-tools" \
+    WIKI_CACHE_DIR=/home/container/.cache/wiki-viewer \
+    WIKI_CACHE_AGE=7
+
+RUN mkdir -p "${WIKI_CACHE_DIR}" && \
+    git clone --depth 1 \
+      "https://github.com/${WIKI_REPO}.wiki.git" \
+      "${WIKI_CACHE_DIR}" && \
+    echo "Wiki cached at build time: $(date -u)" > "${WIKI_CACHE_DIR}/.build-stamp"
+
 # alt approach to azure-cli and deploy other system tools via pip
 ENV PIP_ROOT_USER_ACTION=ignore
 RUN SODIUM_INSTALL=system sudo pip install --no-cache-dir pynacl; sudo pip install --upgrade pip; sudo pip install --no-cache-dir --break-system-packages azure-cli aws-list-all
@@ -71,6 +91,7 @@ RUN SODIUM_INSTALL=system sudo pip install --no-cache-dir pynacl; sudo pip insta
 WORKDIR /opt/
 RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
+    sudo git clone https://github.com/HuskyHacks/cazadora.git && \
     sudo chown container:container -R /opt/*
 
 # Build ScoutSuite Environment
@@ -114,6 +135,7 @@ RUN powerpipe mod update
 # Prepare Prowler Environment - pre-reqs will be brought down at launch
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
+
 # python 3.12 workaround
 COPY --from=python-builder /usr/local/bin/python3.12 /usr/local/bin/
 COPY --from=python-builder /usr/local/bin/pip3.12 /usr/local/bin/
@@ -121,6 +143,11 @@ COPY --from=python-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
 COPY --from=python-builder /usr/local/lib/libpython3.12* /usr/local/lib/
 COPY --from=python-builder /usr/local/include/python3.12 /usr/local/include/python3.12
 RUN python3.12 -m venv venv && venv/bin/pip install --no-cache-dir --upgrade pip 
+
+# prepare cazadora
+WORKDIR /opt/cazadora
+COPY ./cazadora.sh .
+RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip
 
 # Build semgrep
 WORKDIR /opt/semgrep

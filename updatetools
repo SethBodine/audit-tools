@@ -63,6 +63,12 @@ virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip 
 sudo sed -i '/scoutsuite/d' /etc/motd_updates 
 echo "\n** Update Tools ** ScoutSuite now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 
+echo "Updating cazadora" >>${LOGFILE}
+cd /opt/cazadora
+virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip >>${LOGFILE} && venv/bin/pip install --no-cache-dir -r requirements.txt >>${LOGFILE}
+sudo sed -i '/cazadora/d' /etc/motd_updates 
+echo "\n** Update Tools ** cazadora now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
+
 echo "Updating kubescape" >>${LOGFILE}
 sudo curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash >>${LOGFILE} 
 sudo sed -i '/kubescape/d' /etc/motd_updates 
@@ -86,6 +92,9 @@ echo "\n** Update Tools ** fx now up to date.\n" > /proc/$(pidof /bin/bash)/fd/0
 echo "Fixings /opt permissions" >>${LOGFILE}
 sudo chown container:container -Rv /opt/* >>${LOGFILE}
 echo "\n** Update Tools ** /opt is now up to date - all tools are now installed.\n" > /proc/$(pidof /bin/bash)/fd/0
+
+echo "Updatng wiki" >>${LOGFILE}
+wiki --update
 
 echo "Updated motd" >>${LOGFILE}
 sudo bash -c "echo -e '-------------------------------\n\nUpdates are now complete - container will shutdown within the next 48 hours\n\n' >/etc/motd_updates"

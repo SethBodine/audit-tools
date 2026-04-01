@@ -2,14 +2,22 @@
 
 Updates are installing - please check /tmp for updatetools.*.log files to track these updates as they occur.
 
-The below applications may not be fully installed or ready for use until the container initisation script /sbin/updatetools completes.
+The below applications may not be fully installed or ready for use until the container initialisation script /sbin/updatetools completes.
 
 - scoutsuite 
 - kubeaudit
 - grype
 - syft
 - fx
+- cazadora
 
 ----
 Note: trufflehog, trivy, AzureHound, poutine, dockerspy, kube-bench, and aws-cli will ONLY be updated when the container image is rebuilt.
 ----
+
+----
+Note: Wiki Search!
+----
+Run "wiki" to access the wiki directly from the command line!
+
+!!!!
