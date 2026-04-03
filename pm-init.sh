@@ -65,9 +65,11 @@ $CONTAINER_ENGINE run -d \
     --name "$CONTAINER_NAME" \
     -p 9194:9194 \
     -p 9033:9033 \
-    -p 11666:11666 \
     $MOUNT_FLAGS \
     "$IMAGE" /sbin/updatetools >/dev/null
+
+    # 9194 == Steampipe Dashboard
+    # 9033 == Powerpipe Dashboard
 
 if [[ $? -ne 0 ]]; then
     log "Failed to start container."
