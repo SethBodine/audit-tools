@@ -86,6 +86,7 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 | Powerpipe | `powerpipe` | ![](https://img.shields.io/github/last-commit/turbot/powerpipe) | [Using Powerpipe](https://github.com/SethBodine/audit-tools/wiki/Using-Powerpipe) |
 | cazadora | `. /opt/cazadorz/cazadora.sh && python main.py` | ![](https://img.shields.io/github/last-commit/HuskyHacks/cazadora) | [Using cazadorz](https://github.com/SethBodine/docker/wiki/Using-cazadorz) |
 | CloudFox | `cloudfox` | ![](https://img.shields.io/github/last-commit/BishopFox/cloudfox) | [Using CloudFox](https://github.com/SethBodine/audit-tools/wiki/Using-cloudfox) |
+| zizmor | `zizmor` | ![](https://img.shields.io/github/last-commit/zizmorcore/zizmor) | [Using zizmor](https://github.com/SethBodine/audit-tools/wiki/Using-zizmor) |
 
 ###  Infrastructure as Code (IaC) Scanning
 
@@ -120,6 +121,7 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 | --- | --- | --- | --- |
 | trufflehog | `trufflehog` | ![](https://img.shields.io/github/last-commit/trufflesecurity/trufflehog) | [Using Trufflehog](https://github.com/SethBodine/audit-tools/wiki/Using-Trufflehog) |
 | gitleaks | `gitleaks` | ![](https://img.shields.io/github/last-commit/gitleaks/gitleaks) | [Using Gitleaks](https://github.com/SethBodine/audit-tools/wiki/Using-gitleaks) |
+| betterleaks | `betterleaks` | ![](https://img.shields.io/github/last-commit/betterleaks/betterleaks) | [Using betterleaks](https://github.com/SethBodine/audit-tools/wiki/Using-betterleaks) |
 
 ###  Identity & Active Directory
 
@@ -149,10 +151,12 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 
 ### Recently Added
 - wiki (including glow and fzf tools) search tool
-- cazadora  Search for suspicious M365 OAuth Apps 
-- cloudfox  Cloud attack surface enumeration for AWS and Azure
-- gitleaks  Fast git-native secrets scanner
-- polarisi  Kubernetes workload security and reliability validation
+- cazadora     Search for suspicious M365 OAuth Apps 
+- cloudfox     Cloud attack surface enumeration for AWS and Azure
+- gitleaks     Fast git-native secrets scanner
+- polaris      Kubernetes workload security and reliability validation
+- zizmor       Static analysis for GitHub Actions workflows
+- betterleaks  Faster secrets scanner with recursive decoding and archive support
 
 ## Pending Changes
 ### Removal
