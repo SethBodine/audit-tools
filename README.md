@@ -47,7 +47,7 @@ The container ships with a `wiki` command that lets you browse the documentation
 # example commands
 wiki                    # list all pages
 wiki --checkov          # jump straight to the checkov page
-wiki --search token     # search across all pages
+wiki --search [token]   # search across all pages
 wiki --menu             # interactive arrow-key browser
 wiki --update           # pull latest wiki from GitHub
 ```
@@ -85,6 +85,7 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 | Steampipe | `steampipe` | ![](https://img.shields.io/github/last-commit/turbot/steampipe) | [Using Steampipe](https://github.com/SethBodine/audit-tools/wiki/Using-Steampipe) |
 | Powerpipe | `powerpipe` | ![](https://img.shields.io/github/last-commit/turbot/powerpipe) | [Using Powerpipe](https://github.com/SethBodine/audit-tools/wiki/Using-Powerpipe) |
 | cazadora | `. /opt/cazadorz/cazadora.sh && python main.py` | ![](https://img.shields.io/github/last-commit/HuskyHacks/cazadora) | [Using cazadorz](https://github.com/SethBodine/docker/wiki/Using-cazadorz) |
+| CloudFox | `cloudfox` | ![](https://img.shields.io/github/last-commit/BishopFox/cloudfox) | [Using CloudFox](https://github.com/SethBodine/audit-tools/wiki/Using-cloudfox) |
 
 ###  Infrastructure as Code (IaC) Scanning
 
@@ -111,12 +112,14 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 | --- | --- | --- | --- |
 | kubescape | `kubescape` | ![](https://img.shields.io/github/last-commit/kubescape/kubescape) | [Using kubescape](https://github.com/SethBodine/audit-tools/wiki/Using-kubescape) |
 | kube-bench | `kube-bench` | ![](https://img.shields.io/github/last-commit/aquasecurity/kube-bench) | [Using kube-bench](https://github.com/SethBodine/audit-tools/wiki/Using-kube-bench) |
+| polaris | `polaris` | ![](https://img.shields.io/github/last-commit/FairwindsOps/polaris) | [Using Polaris](https://github.com/SethBodine/audit-tools/wiki/Using-polaris) |
 
 ###  Secrets & Credential Scanning
 
 | Tool | CLI command | Last Commit | Wiki |
 | --- | --- | --- | --- |
 | trufflehog | `trufflehog` | ![](https://img.shields.io/github/last-commit/trufflesecurity/trufflehog) | [Using Trufflehog](https://github.com/SethBodine/audit-tools/wiki/Using-Trufflehog) |
+| gitleaks | `gitleaks` | ![](https://img.shields.io/github/last-commit/gitleaks/gitleaks) | [Using Gitleaks](https://github.com/SethBodine/audit-tools/wiki/Using-gitleaks) |
 
 ###  Identity & Active Directory
 
@@ -147,6 +150,9 @@ Tools are grouped by purpose. Click the Wiki URL for full usage instructions inc
 ### Recently Added
 - wiki (including glow and fzf tools) search tool
 - cazadora  Search for suspicious M365 OAuth Apps 
+- cloudfox  Cloud attack surface enumeration for AWS and Azure
+- gitleaks  Fast git-native secrets scanner
+- polarisi  Kubernetes workload security and reliability validation
 
 ## Pending Changes
 ### Removal

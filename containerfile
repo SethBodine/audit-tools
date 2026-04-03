@@ -9,7 +9,10 @@ RUN git clone https://github.com/BloodHoundAD/AzureHound && \
     git clone https://github.com/trufflesecurity/trufflehog.git && \
     git clone https://github.com/UndeadSec/DockerSpy.git && \
     git clone https://github.com/boostsecurityio/poutine && \
-    git clone https://github.com/aquasecurity/kube-bench.git
+    git clone https://github.com/aquasecurity/kube-bench.git && \
+    git clone https://github.com/BishopFox/cloudfox.git && \
+    git clone https://github.com/gitleaks/gitleaks.git && \
+    git clone https://github.com/fairwindsops/polaris
 
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
@@ -20,7 +23,10 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go build -C /opt/AzureHound -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound; \
     go build -C /opt/DockerSpy -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/dockerspy; \
     go build -C /opt/poutine -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/poutine; \
-    go build -C /opt/kube-bench -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kube-bench
+    go build -C /opt/kube-bench -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/kube-bench; \
+    go build -C /opt/cloudfox -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/cloudfox; \
+    go build -C /opt/gitleaks -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/gitleaks;\
+    go build -C /opt/polaris -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/polaris
 
 #AWS CLI
 FROM amazon/aws-cli:latest AS awscli
@@ -180,6 +186,9 @@ COPY --from=gobuild /usr/bin/trufflehog /usr/bin/trufflehog
 COPY --from=gobuild /usr/bin/AzureHound /usr/bin/AzureHound
 COPY --from=gobuild /usr/bin/poutine /usr/bin/poutine
 COPY --from=gobuild /usr/bin/kube-bench /usr/bin/kube-bench
+COPY --from=gobuild /usr/bin/cloudfox /usr/bin/cloudfox
+COPY --from=gobuild /usr/bin/gitleaks /usr/bin/gitleaks
+COPY --from=gobuild /usr/bin/polaris /usr/bin/polaris
 COPY --from=gobuild /usr/bin/dockerspy /usr/bin/dockerspy
 COPY --from=gobuild /opt/DockerSpy/src/ /etc/dockerspy
 COPY --from=awscli /usr/local/aws-cli/ /usr/local/aws-cli/
