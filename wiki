@@ -34,16 +34,36 @@ success() { echo -e "${GREEN} ${RESET}$*"; }
 err()     { echo -e "${RED} ${RESET}$*" >&2; }
 
 #  Markdown renderer (best available) 
+# Default: render to stdout so content stays in scrollback after reading.
+# Set WIKI_PAGER=true (via --pager / -p flag) to open in a pager instead.
+WIKI_PAGER=false
+
 render_markdown() {
   local file="$1"
   if command -v glow &>/dev/null; then
-    glow -p "$file"
+    if [[ "$WIKI_PAGER" == true ]]; then
+      glow -p "$file"
+    else
+      glow "$file"
+    fi
   elif command -v bat &>/dev/null; then
-    bat --language=markdown --paging=always --style=plain "$file"
+    if [[ "$WIKI_PAGER" == true ]]; then
+      bat --language=markdown --paging=always --style=plain "$file"
+    else
+      bat --language=markdown --paging=never --style=plain "$file"
+    fi
   elif command -v mdcat &>/dev/null; then
-    mdcat "$file" | less -R
+    if [[ "$WIKI_PAGER" == true ]]; then
+      mdcat "$file" | less -R
+    else
+      mdcat "$file"
+    fi
   else
-    less -R "$file"
+    if [[ "$WIKI_PAGER" == true ]]; then
+      less -R "$file"
+    else
+      cat "$file"
+    fi
   fi
 }
 
@@ -236,11 +256,22 @@ show_related() {
 }
 
 #  Open a page 
+LAST_PAGE_FILE=""   # tracks the last page viewed, for menu exit redraw
+
 open_page() {
-  local idx="$1"   # 0-based
+  local idx="$1"
+  local pager_override="${2:-}"   # "pager" forces pager regardless of WIKI_PAGER
   local file="${PAGE_FILES[$idx]}"
+  LAST_PAGE_FILE="$file"
   show_related "$file" "$idx"
-  render_markdown "$file"
+  if [[ "$pager_override" == "pager" ]]; then
+    local saved="$WIKI_PAGER"
+    WIKI_PAGER=true
+    render_markdown "$file"
+    WIKI_PAGER="$saved"
+  else
+    render_markdown "$file"
+  fi
 }
 
 #  Fuzzy / grep search 
@@ -323,7 +354,7 @@ interactive_menu() {
 
     for i in "${!PAGE_FILES[@]}"; do
       if (( i == current )); then
-        echo -e "  ${GREEN} ${BOLD}${PAGE_TITLES[$i]}${RESET}  ${DIM}--${PAGE_SHORTHANDS[$i]}${RESET}"
+        echo -e "  ${GREEN}> ${BOLD}${PAGE_TITLES[$i]}${RESET}  ${DIM}--${PAGE_SHORTHANDS[$i]}${RESET}"
       else
         printf "    %s\n" "${PAGE_TITLES[$i]}"
       fi
@@ -340,14 +371,13 @@ interactive_menu() {
       case "$esc" in
         '[A') (( current > 0 )) && (( current-- )) ;;          # Up
         '[B') (( current < count - 1 )) && (( current++ )) ;;  # Down
-        '[5') (( current = 0 )) ;;                              # PgUp  top
-        '[6') (( current = count - 1 )) ;;                      # PgDn  bottom
+        '[5') (( current = 0 )) ;;                              # PgUp -> top
+        '[6') (( current = count - 1 )) ;;                      # PgDn -> bottom
       esac
-    elif [[ "$key" == '' ]]; then   # Enter
+    elif [[ "$key" == '' ]]; then   # Enter  open in pager, return to menu after
       tput cnorm; tput rmcup
       trap - INT TERM EXIT
-      open_page "$current"
-      # Re-enter menu after reading
+      open_page "$current" "pager"
       tput smcup; tput civis
       trap 'tput cnorm; tput rmcup; exit' INT TERM EXIT
     elif [[ "$key" == '/' ]]; then  # Quick search from menu
@@ -370,6 +400,12 @@ interactive_menu() {
 
   trap - INT TERM EXIT
   tput cnorm; tput rmcup
+
+  # Redraw last viewed page to stdout so it stays in the scrollback
+  if [[ -n "$LAST_PAGE_FILE" ]]; then
+    show_related "$LAST_PAGE_FILE" ""
+    render_markdown "$LAST_PAGE_FILE"
+  fi
 }
 
 #  Resolve a user-supplied argument to a page 
@@ -410,6 +446,16 @@ resolve_arg() {
 
 #  Entry point 
 main() {
+  # Pre-parse --pager / -p so it composes with any other argument
+  local args=()
+  for arg in "$@"; do
+    case "$arg" in
+      --pager|-p) WIKI_PAGER=true ;;
+      *)          args+=("$arg") ;;
+    esac
+  done
+  set -- "${args[@]+"${args[@]}"}"
+
   case "${1:-}" in
 
     --update|-u)
@@ -431,13 +477,16 @@ main() {
       echo ""
       echo -e "${BOLD}wiki${RESET}  GitHub Wiki viewer  ${DIM}(${WIKI_REPO})${RESET}"
       echo ""
-      echo -e "  ${CYAN}wiki${RESET}                      List all pages with shorthands"
-      echo -e "  ${CYAN}wiki <number>${RESET}             Open page by number"
-      echo -e "  ${CYAN}wiki --<shorthand>${RESET}        Jump directly to a page"
-      echo -e "  ${CYAN}wiki --menu${RESET}  ${DIM}(-m)${RESET}         Interactive arrow-key menu"
-      echo -e "  ${CYAN}wiki --search <term>${RESET}  ${DIM}(-s)${RESET} Search all pages (fzf if available)"
-      echo -e "  ${CYAN}wiki --update${RESET}  ${DIM}(-u)${RESET}       Pull latest wiki from GitHub"
-      echo -e "  ${CYAN}wiki --help${RESET}  ${DIM}(-h)${RESET}         Show this help"
+      echo -e "  ${CYAN}wiki${RESET}                           List all pages with shorthands"
+      echo -e "  ${CYAN}wiki <number>${RESET}                  Open page by number"
+      echo -e "  ${CYAN}wiki --<shorthand>${RESET}             Jump directly to a page"
+      echo -e "  ${CYAN}wiki --menu${RESET}  ${DIM}(-m)${RESET}              Interactive arrow-key menu"
+      echo -e "  ${CYAN}wiki --search <term>${RESET}  ${DIM}(-s)${RESET}     Search all pages (fzf if available)"
+      echo -e "  ${CYAN}wiki --update${RESET}  ${DIM}(-u)${RESET}            Pull latest wiki from GitHub"
+      echo -e "  ${CYAN}wiki --help${RESET}  ${DIM}(-h)${RESET}              Show this help"
+      echo ""
+      echo -e "  ${DIM}Add --pager (-p) to any command to open output in a pager instead of stdout.${RESET}"
+      echo -e "  ${DIM}e.g.  wiki -p --checkov   wiki -p 3   wiki -p --search token${RESET}"
       echo ""
       echo -e "  ${DIM}Renderer:  $(command -v glow || command -v bat || command -v mdcat || echo less)${RESET}"
       echo -e "  ${DIM}Cache:     ${CACHE_DIR}  (${CACHE_MAX_AGE_DAYS}d stale threshold)${RESET}"
