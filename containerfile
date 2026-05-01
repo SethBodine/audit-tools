@@ -1,6 +1,8 @@
 # golang is a beast - so we build it then bin it for the container build
 FROM golang:latest AS gobuild
 
+ARG TARGETARCH
+
 # Fixing Time and Date NZDT,
 ENV TZ="Pacific/Auckland"
 
@@ -20,7 +22,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     GOMAXPROCS=$(nproc); \
     GOOS=linux; \
-    GOARCH=${TARGETPLATFORM##*/}; \
+    GOARCH=${TARGETARCH}; \
     go build -C /opt/trufflehog -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/trufflehog; \
     go build -C /opt/AzureHound -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/AzureHound; \
     go build -C /opt/DockerSpy -v -a -trimpath -p $GOMAXPROCS -ldflags '-w -s -extldflags "-static"' -o /usr/bin/dockerspy; \
@@ -33,15 +35,14 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 #rust apps
 FROM rust:latest AS zizmor-builder
-RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 RUN cargo install zizmor --locked
 
 #AWS CLI
 FROM amazon/aws-cli:latest AS awscli
 
 #Aquasec trivy
-# FROM aquasec/trivy:latest AS trivy # latest tag removed from dockerhub
-FROM aquasec/trivy:0.69.3 AS trivy
+FROM aquasec/trivy:latest AS trivy 
 
 # Python 3.12 workaround for prowler
 FROM python:3.12 AS python-builder
@@ -70,8 +71,7 @@ RUN bash -c "ulimit -Sn 1000" && mkdir -p /etc/apt/keyrings && \
 
 # deploy wiki payloads
 #  Install the wiki script 
-COPY wiki /usr/local/bin/wiki
-RUN chmod +x /usr/local/bin/wiki
+COPY --chmod=755 wiki /usr/local/bin/wiki
 
 # push motd
 WORKDIR /etc/
@@ -103,9 +103,9 @@ RUN SODIUM_INSTALL=system sudo pip install --no-cache-dir pynacl; sudo pip insta
 
 # Deploy tools from Github - removed golang applications - these will be built upstream
 WORKDIR /opt/
-RUN sudo git clone https://github.com/nccgroup/ScoutSuite.git && \
+RUN sudo git clone --depth 1 https://github.com/nccgroup/ScoutSuite.git && \
     sudo git clone --depth 1 https://github.com/drwetter/testssl.sh.git && \
-    sudo git clone https://github.com/HuskyHacks/cazadora.git && \
+    sudo git clone --depth 1 https://github.com/HuskyHacks/cazadora.git && \
     sudo chown container:container -R /opt/*
 
 # Build ScoutSuite Environment
@@ -134,7 +134,6 @@ RUN sudo /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)" &&
     steampipe plugin install mongodbatlas && \
     steampipe plugin install okta && \
     steampipe plugin install alicloud && \
-    steampipe plugin install digitalocean && \
     steampipe plugin install oci 
 
 # Build Powerpipe
@@ -150,7 +149,7 @@ RUN powerpipe mod update
 WORKDIR /opt/prowler
 COPY ./prowler.sh .
 
-# python 3.12 workaround
+# python 3.12 workaround for prowler
 COPY --from=python-builder /usr/local/bin/python3.12 /usr/local/bin/
 COPY --from=python-builder /usr/local/bin/pip3.12 /usr/local/bin/
 COPY --from=python-builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
@@ -173,21 +172,12 @@ WORKDIR /opt/checkov
 COPY ./checkov.sh .
 RUN virtualenv -p python3 venv && venv/bin/pip install --no-cache-dir --upgrade pip
 
-# Install trivy (tfsec replacement)
-RUN sudo bash -c "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin"
-
-# Install Kubescape
-RUN sudo bash -c "curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash"
+# Install Kubescape, grype, syft, fx 
 ENV PATH="$PATH:/home/container/.kubescape/bin"
-
-# Install grype
-RUN sudo bash -c "curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin"
-
-# Install syft
-RUN sudo bash -c "curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin"
-
-# Install fx
-RUN sudo bash -c "curl https://fx.wtf/install.sh | sh"
+RUN sudo bash -c "curl -s https://raw.githubusercontent.com/kubescape/kubescape/master/install.sh | /bin/bash" && \
+    sudo bash -c "curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin" && \
+    sudo bash -c "curl -sSfL https://get.anchore.io/syft | sudo sh -s -- -b /usr/local/bin" && \
+    sudo bash -c "curl https://fx.wtf/install.sh | sh"
 
 # Grab compiled bins from golang build
 COPY --from=gobuild /usr/bin/trufflehog /usr/bin/trufflehog
